@@ -173,6 +173,12 @@ export default function Market({ navigation }) {
             .then(async res => {
                 setLoadingStocksFromSelectedRegion(true);
                 var json = await res.json();
+                json.push({
+                    "Name": "Saudi Arabia Exchange",
+                    "Code": "SR",
+                    "Country": "SA",
+                    "Currency": "SR",
+                    })
                 json.sort((a, b) => {
                     if (a.Name === "Saudi Arabia Exchange") {
                         return -1;

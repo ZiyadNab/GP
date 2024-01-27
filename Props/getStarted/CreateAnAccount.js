@@ -136,15 +136,15 @@ export default function Profile({ navigation }) {
                         gender: gender,
                         DOB: text,
                         pin: '0000',
-                        balance: 10000.00,
-                        profit: 0,
                         userId: createdAccount.user.uid,
                         notifications: [],
                         portfolio: {
                             assets: [],
                             history: [],
                             sessions: [],
-                            watchlist: []
+                            watchlist: [],
+                            profit: 0,
+                            balance: 10000.00,
                         }
                     });
 

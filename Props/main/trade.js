@@ -21,7 +21,7 @@ export default function Trade({ navigation }) {
     const [amount, setAmount] = useState(0)
     const [userBalance, setUserBalance] = useState(0)
 
-    function validations(){
+    function validationsBuy(){
 
         if(amount <= 0) return Toast.show({
             type: 'info',
@@ -40,7 +40,29 @@ export default function Trade({ navigation }) {
                 visibilityTime: 5000,
                 autoHide: true
             })
-        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet }})
+        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'sell' }})
+    }
+
+    function validationsSell(){
+
+        if(amount <= 0) return Toast.show({
+            type: 'info',
+            text1: 'You left something',
+            text2: "Please enter the amount first.",
+            visibilityTime: 5000,
+            autoHide: true
+        })
+
+        if(owned.amount < amount){
+
+            Toast.show({
+                type: 'error',
+                text1: 'Errored',
+                text2: "You only own " + owned.amount + " assets, please be specific.",
+                visibilityTime: 5000,
+                autoHide: true
+            })
+        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'sell' }})
     }
 
     useEffect(() => {
@@ -50,7 +72,7 @@ export default function Trade({ navigation }) {
                 const docRef = doc(db, "users", auth.currentUser.uid)
                 const docData = await getDoc(docRef)
                 if (docData.exists()) {
-                    setOwned(docData.data().portfolio.assets.some(item => console.log(item.title === receivedData.asset.title)))
+                    setOwned(docData.data().portfolio.assets.find(item => item.title === receivedData.asset.title))
                     setUserBalance(docData.data().portfolio.balance)
                     setLoading(false)
                 }
@@ -117,6 +139,7 @@ export default function Trade({ navigation }) {
                         padding: 12,
                         fontWeight: 'bold',
                         fontSize: 40,
+                        textAlign: 'center'
 
                     }} onChangeText={(v) => setAmount(v)} caretHidden={true} placeholder='Amount' />
 
@@ -128,16 +151,30 @@ export default function Trade({ navigation }) {
                 </View>
             </View>
 
-            <TouchableOpacity onPress={() => validations()}>
+            { owned ? (
+                <TouchableOpacity onPress={() => validationsSell()}>
                 <View style={{
-                    backgroundColor: !owned ? '#1573FE' : 'red',
+                    backgroundColor: 'red',
+                    padding: 15,
+                    borderRadius: 10,
+                    marginHorizontal: 20,
+                    marginTop: 5,
+                    marginBottom: 5,
+                }}>
+                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Sell"}</Text>
+                </View>
+            </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity onPress={() => validationsBuy()}>
+                <View style={{
+                    backgroundColor: '#1573FE',
                     padding: 15,
                     borderRadius: 10,
                     marginHorizontal: 20,
                     marginTop: 5,
                     marginBottom: 100,  // Add marginBottom to push it away from the bottom edge
                 }}>
-                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{!owned ? "Buy" : "Sell"}</Text>
+                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Buy"}</Text>
                 </View>
             </TouchableOpacity>
             <Toast />

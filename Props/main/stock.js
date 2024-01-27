@@ -30,6 +30,7 @@ export default function Stock({ navigation }) {
     const [chartData, setChartData] = useState(null);
     const [selectedInterval, setSelectedInterval] = useState('1 Day');
     const [addedFav, setAddedFav] = useState(false)
+    console.log(receivedData)
 
     async function addFav() {
 

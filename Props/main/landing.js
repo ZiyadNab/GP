@@ -122,7 +122,7 @@ export default Landing = () => {
         const userData = doc.data();
         setFullName(userData.fullname);
         setBalance(userData.portfolio.balance.toString().split('.'));
-        setProfit(userData.profit);
+        setProfit(userData.portfolio.profit);
         setPortfolio(userData.portfolio.assets)
         setWatchlist(userData.portfolio.watchlist)
         setIcon(userData.icon)

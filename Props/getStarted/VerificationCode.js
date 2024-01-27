@@ -74,7 +74,7 @@ export default function VerificationCode({ navigation }) {
                     const docData = await getDoc(docRef)
                     if (docData.exists()) {
                         await updateDoc(docRef, {
-                            'portfolio.balance': docData.data().portfolio.balance - (receivedData.amount * receivedData.asset.numPrice),
+                            'portfolio.balance': receivedData.type === 'buy' ? docData.data().portfolio.balance - (receivedData.amount * receivedData.asset.numPrice) :  docData.data().portfolio.balance + (receivedData.amount * receivedData.asset.numPrice),
                             'portfolio.assets': arrayUnion({
                                 icon: receivedData.asset.icon,
                                 name: receivedData.asset.name,

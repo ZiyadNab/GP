@@ -5,25 +5,100 @@ import LottieView from "lottie-react-native";
 import { useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message'
 import { auth, db } from '../../database'
+import moment from 'moment';
 import {
     doc,
     onSnapshot,
+    updateDoc,
+    arrayRemove,
+    arrayUnion,
     getDoc,
 } from "firebase/firestore";
 
 export default function WalletMarket({ navigation }) {
     const route = useRoute();
     const receivedData = route.params?.data;
+    const dType = route.params?.type
     const [waletChosen, setWaletChosen] = useState(null)
     const [userSessions, setUserSessions] = useState([])
     const [wallets, setWallets] = useState([])
     const [loading, setLoading] = useState(true)
+    const [addedFav, setAddedFav] = useState(false)
+
+    const isContestActive = (endDate) => {
+        const currentDate = moment();
+        const contestEndDate = moment(endDate);
+
+        return contestEndDate.isAfter(currentDate);
+    };
+
+    async function addFav() {
+        setAddedFav(!addedFav)
+
+        // Update the Firestore document
+        const docRef = doc(db, "users", userSessions[waletChosen] === "personal" ? auth.currentUser.uid : userSessions[waletChosen]);
+
+        if (addedFav) {
+
+            try {
+
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: `The ${receivedData.title}, ${receivedData.name} has been removed to your watchlist successfully!`,
+                    visibilityTime: 5000,
+                    autoHide: true
+                })
+
+                await updateDoc(docRef, {
+                    'portfolio.watchlist': arrayRemove({
+                        icon: receivedData.icon,
+                        name: receivedData.name,
+                        region: receivedData.region,
+                        title: receivedData.title,
+                    })
+                })
+
+            } catch (error) {
+                // Handle any errors that occur during the update (optional)
+                console.error("Error updating user information:", error);
+            }
+        } else {
+
+            try {
+
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: `The ${receivedData.title}, ${receivedData.name} has been added to your watchlist successfully!`,
+                    visibilityTime: 5000,
+                    autoHide: true
+                })
+
+                await updateDoc(docRef, {
+                    'portfolio.watchlist': arrayUnion({
+                        icon: receivedData.icon,
+                        name: receivedData.name,
+                        region: receivedData.region,
+                        title: receivedData.title,
+                    })
+                })
+
+            } catch (error) {
+                // Handle any errors that occur during the update (optional)
+                console.error("Error updating user information:", error);
+            }
+        }
+
+
+    }
 
     useEffect(() => {
         const docRef = doc(db, 'users', auth.currentUser.uid)
 
         const unsubscribe = onSnapshot(docRef, async (docSnapshot) => {
-            if (docSnapshot.exists) {
+            if (docSnapshot.exists()) {
+                setAddedFav(docSnapshot.data().portfolio.watchlist.some(item => item.name === receivedData.name))
                 let allSessions = ["personal"]
                 const userData = docSnapshot.data();
                 userData.portfolio.sessions
@@ -41,7 +116,7 @@ export default function WalletMarket({ navigation }) {
 
                         if (sessionSnap.exists()) {
                             const sessionData = sessionSnap.data();
-                            if (sessionData.isActive) {
+                            if (isContestActive(sessionData.endDate)) {
                                 activeSessions.push({
                                     walletName: sessionData.sessionName,
                                     walletDescription: `Buy assets to ${sessionData.sessionName} wallet`,
@@ -224,9 +299,11 @@ export default function WalletMarket({ navigation }) {
             </View>
 
             <TouchableOpacity onPress={() => {
-                if (waletChosen != null) {
+                if (waletChosen != null && dType === "trade") {
                     navigation.navigate("Trade", { data: { asset: receivedData, wallet: userSessions[waletChosen] } })
 
+                } else if(waletChosen != null && dType === "fav"){
+                    addFav()
                 } else Toast.show({
                     type: 'info',
                     text1: 'You left something',
@@ -243,7 +320,7 @@ export default function WalletMarket({ navigation }) {
                     marginTop: 5,
                     marginBottom: 100,  // Add marginBottom to push it away from the bottom edge
                 }}>
-                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>Next</Text>
+                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{ dType === "trade" ? "Next" : !addedFav ? "Favourite" : "Unfavourite"}</Text>
                 </View>
             </TouchableOpacity>
 

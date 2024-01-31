@@ -41,6 +41,7 @@ export default function Profile() {
   const [isFocus2, setIsFocus2] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null);
   const [date, setdate] = useState(new Date());
+  const [updatedPin, setUpdatedPin] = useState();
   const [showDatePicker, setshow] = useState(false);
   const [text, setText] = useState();
   const [updating, setUpdating] = useState(false)
@@ -48,6 +49,7 @@ export default function Profile() {
   const [fname, setFName] = useState('')
   const [email, setEmail] = useState('')
   const [pnumber, setPNumber] = useState('')
+  const [pin, setPin] = useState('')
   const [country, setCountry] = useState('')
   const [gender, setGender] = useState('')
   const [icon, setIcon] = useState('https://t1.gstatic.com/licensed-image?q=tbn:ANd9GcQavfSfyOVYO54wkFq1cV0yguHfZSUiYwmiGvtdlDDav_wKZYsyy9NPBk952R2zXNSs')
@@ -74,6 +76,7 @@ export default function Profile() {
         setIcon(docData.data().icon)
         setLoading(false)
         setText(docData.data().DOB)
+        setPin(docData.data().pin)
       }
     }
 
@@ -139,7 +142,7 @@ export default function Profile() {
         width: 1000,
         height: 1000,
         borderRadius: 500,
-        marginTop: -825
+        marginTop: -875
       }} />
 
       <Image
@@ -271,14 +274,24 @@ export default function Profile() {
           )}
         </TouchableOpacity>
 
+        <View style={styles.ProfileView}>
+          <Text style={styles.ProfileText}> Confirmation Pin </Text>
+          <TextInput
+            placeholder={pin}
+            keyboardType="decimal-pad"
+            onChangeText={((v) => {
+              setUpdatedPin(v)
+            })}
+          />
+        </View>
+
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <TouchableOpacity
             disabled={updating}
             style={styles.ButtonStyle}
             onPress={async () => {
-              console.log(updatedGender, gender)
 
-              if (!(updatedFullName || updatedEmail || updatedPhoneNumber || updatedCountry || updatedGender || updatedDOB || updatedIcon)) {
+              if (!(updatedFullName || updatedEmail || updatedPhoneNumber || updatedCountry || updatedGender || updatedDOB || updatedIcon || updatedPin)) {
                 Toast.show({
                   type: 'info',
                   text1: 'You left something',
@@ -302,7 +315,8 @@ export default function Profile() {
                   country: updatedCountry ? updatedCountry : country,
                   gender: updatedGender ? updatedGender : gender,
                   DOB: updatedDOB ? updatedDOB : text,
-                  icon: updatedIcon ? updatedIcon : icon
+                  icon: updatedIcon ? updatedIcon : icon,
+                  pin: updatedPin ? updatedPin : pin
                 });
 
                 setUpdating(false)
@@ -323,6 +337,7 @@ export default function Profile() {
                 if (updatedGender) setGender(updatedGender)
                 if (updatedDOB) setText(updatedDOB)
                 if (updatedIcon) setIcon(updatedIcon)
+                if (updatedPin) setPin(updatedPin)
 
                 setUpdatedFullName(null)
                 setUpdatedEmail(null)
@@ -331,6 +346,7 @@ export default function Profile() {
                 setUpdatedGender(null)
                 setUpdatedDOB(null)
                 setUpdatedIcon(null)
+                setUpdatedPin(null)
 
               } catch (error) {
                 // Handle any errors that occur during the update (optional)

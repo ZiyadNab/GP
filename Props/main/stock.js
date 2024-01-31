@@ -30,7 +30,7 @@ export default function Stock({ navigation }) {
     const [chartData, setChartData] = useState(null);
     const [selectedInterval, setSelectedInterval] = useState('1 Day');
     const [addedFav, setAddedFav] = useState(false)
-    console.log(receivedData)
+    const [canbuy, setCanbuy] = useState(false)
 
     async function addFav() {
 
@@ -87,6 +87,13 @@ export default function Stock({ navigation }) {
             .then(async (res) => {
                 const json = await res.json();
                 setChartData(json);
+
+                await fetch(`https://eodhd.com/api/exchange-details/${receivedData.region}?api_token=659429ddd804e2.44750789&fmt=json`)
+                    .then(async (res) => {
+                        const json = await res.json();
+                        setCanbuy(json.isOpen);
+                    });
+
                 setLoading(false);
             });
 
@@ -175,10 +182,10 @@ export default function Stock({ navigation }) {
                 justifyContent: 'center',
                 marginTop: 200
             }}>
-                <TouchableOpacity onPress={() => navigation.navigate("marketWallet", { data: receivedData }) } style={{
+                <TouchableOpacity disabled={!canbuy} onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'trade' })} style={{
                     height: 50,
                     width: '75%',
-                    backgroundColor: '#1573FE',
+                    backgroundColor: canbuy ? '#1573FE' : 'red',
                     borderRadius: 5,
                     marginRight: 10
                 }}>
@@ -192,7 +199,7 @@ export default function Stock({ navigation }) {
                         fontWeight: 'bold'
                     }}>Trade</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={addFav} style={{
+                <TouchableOpacity onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'fav' })} style={{
                     padding: 10,
                     width: '13%',
                     backgroundColor: '#FFD700',

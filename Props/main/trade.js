@@ -40,7 +40,7 @@ export default function Trade({ navigation }) {
                 visibilityTime: 5000,
                 autoHide: true
             })
-        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'sell' }})
+        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'buy' }})
     }
 
     function validationsSell(){
@@ -85,7 +85,7 @@ export default function Trade({ navigation }) {
                     docData.data().players.forEach((e) => {
                         if(e.userId === auth.currentUser.uid){
                             setUserBalance(e.portfolio.balance)
-                            setOwned(e.portfolio.assets.some(item => item.title === receivedData.asset.title))
+                            setOwned(e.portfolio.assets.find(item => item.title === receivedData.asset.title))
                             setLoading(false)
                             return
                         }

@@ -101,10 +101,10 @@ const NotificationItem = ({
           </View>
         </View>
         <View>
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{data.price}</Text>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{data.close ? data.region + data.close : data.price}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {data.rising ? <ChevronUp color='#0DA070' size={20} /> : <ChevronDown color='#E01B2A' size={20} />}
-            <Text style={{ fontSize: 15, fontWeight: 'bold', color: data.rising ? '#0DA070' : '#E01B2A' }}>{data.percantage}%</Text>
+            { data.change_p ? data.change_p > 0 ? <ChevronUp color='#0DA070' size={20} /> : <ChevronDown color='#E01B2A' size={20} /> : data.rising ? <ChevronUp color='#0DA070' size={20} /> : <ChevronDown color='#E01B2A' size={20} />}
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: data.rising ? '#0DA070' : '#E01B2A' }}>{data.change_p ? data.change_p.toFixed(2) : data.percantage}%</Text>
           </View>
         </View>
       </TouchableOpacity>

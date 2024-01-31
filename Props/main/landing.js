@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useImperativeHandle, useCallback } from "react";
 import { StyleSheet, ActivityIndicator, Text, Image, View, ScrollView } from 'react-native';
-import { Bell, ChevronUp, ChevronDown } from 'lucide-react-native';
+import { Bell, ChevronUp, ChevronDown, Minus } from 'lucide-react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { auth, db } from '../../database'
 import NotificationsList from "../helpers/NotificationList";
@@ -26,88 +26,12 @@ export default Landing = () => {
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState(null)
   const [balance, setBalance] = useState(null)
-  const [profit, setProfit] = useState(null)
-  const [portfolio, setPortfolio] = useState(null)
-  const [watchlist, setWatchlist] = useState(null)
+  const [profit, setProfit] = useState(0)
+  const [time, setTime] = useState('05:00');
+  const [portfolio, setPortolio] = useState()
+  const [watchlist, setWatchlist] = useState([])
   const [icon, setIcon] = useState(null)
-
-  const sportfolio = [
-    {
-      icon: require('../../assets/logos/facebook.png'),
-      name: 'Facebook, Inc',
-      title: 'FB',
-      rising: true,
-      percantage: 0.59,
-      price: {
-        int: 365,
-        decimal: 51,
-      },
-      single: {
-        int: 12,
-        decimal: 67,
-      }
-    },
-    {
-      icon: require('../../assets/logos/apple.png'),
-      name: 'Apple, Inc',
-      title: 'AAPL',
-      rising: false,
-      percantage: 0.59,
-      price: {
-        int: 1265,
-        decimal: 51
-      },
-      single: {
-        int: 205,
-        decimal: 67,
-      }
-    },
-    
-  ]
-
-  const swatchlist = [
-    // {
-    //   icon: require('../../assets/logos/google.png'),
-    //   name: 'Alphabet, Inc',
-    //   title: 'GOOGL',
-    //   rising: true,
-    //   percantage: 0.59,
-    //   price: 213.76,
-    // },
-    // {
-    //   icon: require('../../assets/logos/x.png'),
-    //   name: 'X Corp',
-    //   title: 'TWTR',
-    //   rising: true,
-    //   percantage: 0.59,
-    //   price: 213.76,
-    // },
-    // {
-    //   icon: require('../../assets/logos/stc.png'),
-    //   name: 'Saudi Telecom Company',
-    //   title: 'STC',
-    //   rising: false,
-    //   percantage: 0.59,
-    //   price: 176.11,
-    // },
-    // {
-    //   icon: require('../../assets/logos/aramco.png'),
-    //   name: 'Saudi Arabian Oil Co',
-    //   title: 'ARAMCO',
-    //   rising: true,
-    //   percantage: 0.59,
-    //   price: 176.11,
-    // },
-    // {
-    //   icon: require('../../assets/logos/microsoft.png'),
-    //   name: 'Microsoft Corp',
-    //   title: 'MSFT',
-    //   rising: false,
-    //   percantage: 0.59,
-    //   price: 176.11,
-    // },
-
-  ]
+  const [assets, setAssets] = useState([])
 
   const footerVisibility = useSharedValue(1);
   const footerHeight = useDerivedValue(() => {
@@ -115,23 +39,115 @@ export default Landing = () => {
   });
 
   useEffect(() => {
-    const docRef = doc(db, 'users', auth.currentUser.uid)
+    const docRef = doc(db, 'users', auth.currentUser.uid);
 
     const unsubscribe = onSnapshot(docRef, async (doc) => {
       if (doc.exists) {
         const userData = doc.data();
         setFullName(userData.fullname);
         setBalance(userData.portfolio.balance.toString().split('.'));
-        setProfit(userData.portfolio.profit);
-        setPortfolio(userData.portfolio.assets)
-        setWatchlist(userData.portfolio.watchlist)
-        setIcon(userData.icon)
-        setLoading(false)
+        const updatedWatchlist = [];
+
+        for (const e of userData.portfolio.watchlist) {
+          const res = await fetch(`https://eodhd.com/api/real-time/${e.title}.${e.region}?api_token=659429ddd804e2.44750789&fmt=json`);
+          const json = await res.json();
+          json.icon = e.icon;
+          json.name = e.name;
+          json.title = e.title;
+          json.region = e.region;
+          updatedWatchlist.push(json);
+        }
+
+        setWatchlist(updatedWatchlist);
+        setIcon(userData.icon);
+
+        const updatedAssets = [];
+        let prof = 0;
+
+        for (const e of userData.portfolio.assets) {
+          const res = await fetch(`https://eodhd.com/api/real-time/${e.title}.${e.region}?api_token=659429ddd804e2.44750789&fmt=json`);
+          const json = await res.json();
+          json.icon = e.icon;
+          json.name = e.name;
+          json.title = e.title;
+          json.amount = e.amount;
+          json.price = e.price;
+          json.region = e.region;
+          updatedAssets.push(json);
+          prof += json.amount * json.close;
+        }
+
+        setProfit(prof.toFixed(2));
+        setAssets(updatedAssets);
+        setLoading(false);
       }
     });
 
-    return () => unsubscribe();
-  }, []);
+    // Set up the countdown timer interval
+    const timer = setInterval(() => {
+      setTime((prevTime) => {
+        const [minutes, seconds] = prevTime.split(':').map(Number);
+
+        if (minutes === 0 && seconds === 0) {
+          clearInterval(timer);
+          // Trigger your function when the countdown expires
+          handleCountdownExpiration();
+
+          // Reset the timer to 1:00
+          return '05:00';
+        } else {
+          const newTime =
+            seconds === 0
+              ? `${String(minutes - 1).padStart(2, '0')}:59`
+              : `${String(minutes).padStart(2, '0')}:${String(seconds - 1).padStart(2, '0')}`;
+
+          return newTime;
+        }
+      });
+    }, 1000);
+
+    const handleCountdownExpiration = async () => {
+
+      const updatedAssets = [];
+      let prof = 0;
+
+      for (const e of assets) {
+        const res = await fetch(`https://eodhd.com/api/real-time/${e.title}.${e.region}?api_token=659429ddd804e2.44750789&fmt=json`);
+        const json = await res.json();
+        json.icon = e.icon;
+        json.name = e.name;
+        json.title = e.title;
+        json.amount = e.amount;
+        json.price = e.price;
+        json.region = e.region;
+        updatedAssets.push(json);
+        prof += json.amount * json.close;
+      }
+
+      setProfit(prof.toFixed(2));
+      setAssets(updatedAssets);
+
+      const updatedWatchlist = [];
+
+      for (const e of watchlist) {
+        const res = await fetch(`https://eodhd.com/api/real-time/${e.title}.${e.region}?api_token=659429ddd804e2.44750789&fmt=json`);
+        const json = await res.json();
+        json.icon = e.icon;
+        json.name = e.name;
+        json.title = e.title;
+        json.region = e.region;
+        updatedWatchlist.push(json);
+      }
+
+      setWatchlist(updatedWatchlist);
+    };
+
+    return () => {
+      clearInterval(timer);
+      unsubscribe();
+    };
+  }, [assets]);
+
 
   if (loading) {
     return (
@@ -232,7 +248,7 @@ export default Landing = () => {
           fontSize: 18,
           fontWeight: 'bold',
           color: '#F6227D'
-        }}>View all</Text>
+        }}>{time}</Text>
       </View>
 
       <View style={{
@@ -241,7 +257,7 @@ export default Landing = () => {
 
         <View style={{ height: 200 }}>
           <ScrollView showsHorizontalScrollIndicator={false} horizontal>
-            {portfolio.length ? portfolio.map((item, index) => (
+            {assets.length ? assets.map((item, index) => (
               <View key={index} style={{
                 backgroundColor: '#fff',
                 padding: 10,
@@ -276,7 +292,7 @@ export default Landing = () => {
                       </View>
                     </View>
 
-                    {item.rising ? <ChevronUp color='#0DA070' size={30} /> : <ChevronDown color='#E01B2A' size={30} />}
+                    {(item.amount * item.price) === (item.amount * item.close) ? <Minus color='blue' size={30} /> : (item.amount * item.price) < (item.amount * item.close) ? <ChevronUp color='#0DA070' size={30} /> : <ChevronDown color='#E01B2A' size={30} />}
                   </View>
                   <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'flex-start' }}>
                     <Text style={{
@@ -284,8 +300,8 @@ export default Landing = () => {
                       fontWeight: 'bold',
                       color: 'black'
                     }}>
-                      ${(item.single * item.amount).toString().split('.')[0]}
-                      <Text style={{ fontSize: 20, color: '#757575' }}>.{(item.single * item.amount).toString().split('.')[1] ? (item.single * item.amount).toString().split('.')[1] : "00"}</Text>
+                      ${(item.close * Number(item.amount)).toString().split('.')[0]}
+                      <Text style={{ fontSize: 20, color: '#757575' }}>.{(item.close * Number(item.amount)).toString().split('.')[1] ? (item.close * Number(item.amount)).toString().split('.')[1] : "00"}</Text>
                     </Text>
 
                     <View style={{
@@ -299,10 +315,10 @@ export default Landing = () => {
                         color: '#A8A8A8',
                         marginRight: 5
                       }}>
-                        ${item.single.toString().split('.')[0]}
-                        <Text style={{ fontSize: 15, color: '#E0E0E0' }}>.{item.single.toString().split('.')[1] ? item.single.toString().split('.')[1] : "00"}</Text>
+                        ${item.close.toString().split('.')[0]}
+                        <Text style={{ fontSize: 15, color: '#E0E0E0' }}>.{item.close.toString().split('.')[1] ? item.close.toString().split('.')[1] : "00"}</Text>
                       </Text>
-                      <Text style={{ fontSize: 15, fontWeight: 'bold', color: item.rising ? '#0DA070' : '#E01B2A' }}>{item.percantage}%</Text>
+                      <Text style={{ fontSize: 15, fontWeight: 'bold', color: item.change_p > 0 ? '#0DA070' : '#E01B2A' }}>{item.change_p.toFixed(2)}%</Text>
                     </View>
                   </View>
                 </View>
@@ -355,7 +371,7 @@ export default Landing = () => {
             fontSize: 18,
             fontWeight: 'bold',
             color: '#F6227D'
-          }}>View all</Text>
+          }}>{time}</Text>
         </View>
 
         {watchlist.length ? (
@@ -364,7 +380,7 @@ export default Landing = () => {
             footerHeight={footerHeight}
             watchlist={watchlist}
           />
-        ): (
+        ) : (
           <View style={{
             backgroundColor: '#fff',
             paddingHorizontal: 75,
@@ -375,7 +391,7 @@ export default Landing = () => {
             alignItems: 'center',
             width: '100%',
           }}>
-  
+
             <LottieView
               style={{
                 width: 100,
@@ -386,7 +402,7 @@ export default Landing = () => {
               autoPlay={true}
               source={require('../../assets/Lottie/WLanding.json')}
             />
-  
+
             <Text style={{
               marginTop: 50,
               maxWidth: 200,
@@ -395,7 +411,7 @@ export default Landing = () => {
           </View>
         )}
 
-        
+
       </View>
     </View>
   );

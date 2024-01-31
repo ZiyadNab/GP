@@ -23,6 +23,7 @@ import VerificationCode from './Props/getStarted/VerificationCode'
 import WalletScreen from './Props/main/wallet'
 import marketWalletScreen from './Props/main/marketWallet'
 import TradeScreen from './Props/main/trade'
+import SessionDetailsScreen from './Props/main/sessionDetails'
 
 const Tab = createBottomTabNavigator()
 
@@ -79,7 +80,7 @@ const MarketScreensStack = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBar,
-        
+
       }}>
 
       <Stack.Screen
@@ -101,15 +102,10 @@ const MarketScreensStack = () => {
         name="Trade"
         component={TradeScreen}
       />
-      
+
       <Stack.Screen
         name="Pin"
         component={VerificationCode}
-      />
-
-      <Stack.Screen
-        name="LangingScreen"
-        component={LangingScreen}
       />
 
     </Stack.Navigator>
@@ -129,6 +125,36 @@ const SessionsScreensStack = () => {
       <Stack.Screen
         name="Session"
         component={SessionsScreen}
+      />
+
+      <Stack.Screen
+        name="SessionDetails"
+        component={SessionDetailsScreen}
+      />
+
+      <Stack.Screen
+        name="WalletScreen"
+        component={WalletScreen}
+      />
+
+      <Stack.Screen
+        name="PortfolioScreen"
+        component={PortfolioScreen}
+      />
+
+      <Stack.Screen
+        name="Stock"
+        component={StockScreen}
+      />
+
+      <Stack.Screen
+        name="Market"
+        component={MarketScreen}
+      />
+
+      <Stack.Screen
+        name="HistoryScreen"
+        component={HistoryScreen}
       />
 
     </Stack.Navigator>

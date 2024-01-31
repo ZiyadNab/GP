@@ -4,6 +4,7 @@ import { Settings, CalendarClock, ChevronUp } from 'lucide-react-native';
 import LottieView from "lottie-react-native";
 import Toast from 'react-native-toast-message'
 import { auth, db } from '../../database'
+import moment from 'moment';
 import {
     doc,
     onSnapshot,
@@ -15,6 +16,13 @@ export default function Wallet({ navigation }) {
     const [userSessions, setUserSessions] = useState([])
     const [wallets, setWallets] = useState([])
     const [loading, setLoading] = useState(true)
+
+    const isContestActive = (endDate) => {
+        const currentDate = moment();
+        const contestEndDate = moment(endDate);
+
+        return contestEndDate.isAfter(currentDate);
+    };
 
     useEffect(() => {
 
@@ -31,7 +39,7 @@ export default function Wallet({ navigation }) {
 
                 const activeSessions = []
                 setUserSessions(allSessions)
-
+                    console.log(allSessions)
                 await Promise.all(
                     allSessions.map(async (sessionId) => {
                         const sessionRef = doc(db, 'sessions', sessionId);
@@ -39,7 +47,7 @@ export default function Wallet({ navigation }) {
 
                         if (sessionSnap.exists()) {
                             const sessionData = sessionSnap.data();
-                            if (sessionData.isActive) {
+                            if (isContestActive(sessionData.endDate)) {
                                 activeSessions.push({
                                     walletName: sessionData.sessionName,
                                     walletDescription: `Buy assets to ${sessionData.sessionName} wallet`,

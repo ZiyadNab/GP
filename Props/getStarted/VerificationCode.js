@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import LottieView from "lottie-react-native";
 import Animated, { useSharedValue, useDerivedValue, interpolate, withSpring, withTiming, useAnimatedStyle } from 'react-native-reanimated'
 import { auth, db } from '../../database'
-import { useRoute } from '@react-navigation/native';
+import { useRoute, CommonActions } from '@react-navigation/native';
 import {
     collection,
     doc,
@@ -72,53 +72,98 @@ export default function VerificationCode({ navigation }) {
                 if (receivedData.wallet === "personal") {
                     const docRef = doc(db, "users", auth.currentUser.uid)
                     const docData = await getDoc(docRef)
+
                     if (docData.exists()) {
-                        await updateDoc(docRef, {
-                            'portfolio.balance': receivedData.type === 'buy' ? docData.data().portfolio.balance - (receivedData.amount * receivedData.asset.numPrice) :  docData.data().portfolio.balance + (receivedData.amount * receivedData.asset.numPrice),
-                            'portfolio.assets': arrayUnion({
+
+                        const updatedAssets = docData.data().portfolio.assets
+                        const existingIndex = updatedAssets.findIndex(
+                            (obj) => obj.title === receivedData.asset.title && obj.name === receivedData.asset.name && obj.region === receivedData.asset.region
+                        );
+
+                        if (existingIndex !== -1) {
+                            let price1 = parseFloat(updatedAssets[existingIndex].amount)
+                            let price2 = parseFloat(receivedData.amount);
+                            receivedData.type === 'buy' ? updatedAssets[existingIndex].amount = (price1 + price2).toString() : updatedAssets[existingIndex].amount = (price1 - price2).toString()
+
+                            var price11 = parseFloat(receivedData.asset.numPrice)
+                            var price22 = parseFloat(updatedAssets[existingIndex].price);
+                            updatedAssets[existingIndex].price = ((price11 + price22) / 2).toString()
+
+                            if (updatedAssets[existingIndex].amount === "0") {
+                                updatedAssets.splice(existingIndex, 1);
+                            }
+
+                        } else {
+                            updatedAssets.push({
                                 icon: receivedData.asset.icon,
                                 name: receivedData.asset.name,
+                                price: receivedData.asset.numPrice,
+                                region: receivedData.asset.region,
                                 title: receivedData.asset.title,
-                                percantage: receivedData.asset.percantage,
-                                amount: receivedData.amount,
-                                price: receivedData.amount * receivedData.asset.numPrice,
-                                single: receivedData.asset.numPrice,
-                                region: receivedData.asset.region
-                            })
+                                amount: receivedData.amount
+                            });
+                        }
+
+                        let price1 = parseFloat(receivedData.asset.numPrice)
+                        let price2 = parseFloat(receivedData.amount)
+
+                        await updateDoc(docRef, {
+                            'portfolio.balance': receivedData.type === 'buy' ? docData.data().portfolio.balance - (price2 * price1) : docData.data().portfolio.balance + (price2 * price1),
+                            'portfolio.assets': updatedAssets
                         })
 
-                        navigation.navigate("LangingScreen")
+                        navigation.dispatch(CommonActions.navigate({ name: 'LangingScreen' }));
                     }
 
                 } else {
                     const docRef = doc(db, "sessions", receivedData.wallet)
                     const docData = await getDoc(docRef)
                     if (docData.exists()) {
+                        
+                        const playersArray = []
+                        docData.data().players.forEach(async (l, i) => {
+                            if (l.userId === auth.currentUser.uid) {
 
-                        const docRef = doc(db, "sessions", receivedData.wallet)
-                        const docData = await getDoc(docRef)
-                        if (docData.exists()) {
-                            const players = doc.data().players;
+                                const updatedAssets = l.portfolio.assets
+                                const existingIndex = updatedAssets.findIndex(
+                                    (obj) => obj.title === receivedData.asset.title && obj.name === receivedData.asset.name && obj.region === receivedData.asset.region
+                                );
 
-                            for (let i = 0; i < players.length; i++) {
-                                if (players[i].userId === auth.currentUser.uid) {
+                                if (existingIndex !== -1) {
+                                    let price1 = parseFloat(updatedAssets[existingIndex].amount)
+                                    let price2 = parseFloat(receivedData.amount);
+                                    receivedData.type === 'buy' ? updatedAssets[existingIndex].amount = (price1 + price2).toString() : updatedAssets[existingIndex].amount = (price1 - price2).toString()
 
-                                    players[i].assets.push({
+                                    var price11 = parseFloat(receivedData.asset.numPrice)
+                                    var price22 = parseFloat(updatedAssets[existingIndex].price);
+                                    updatedAssets[existingIndex].price = ((price11 + price22) / 2).toString()
+
+                                    if (updatedAssets[existingIndex].amount === "0") {
+                                        updatedAssets.splice(existingIndex, 1);
+                                    }
+
+                                } else {
+                                    updatedAssets.push({
                                         icon: receivedData.asset.icon,
                                         name: receivedData.asset.name,
+                                        price: receivedData.asset.numPrice,
+                                        region: receivedData.asset.region,
                                         title: receivedData.asset.title,
-                                        percantage: receivedData.asset.percantage,
-                                        amount: receivedData.amount,
-                                        price: receivedData.amount * receivedData.asset.numPrice,
-                                        single: receivedData.asset.numPrice
+                                        amount: receivedData.amount
                                     });
-                                    break;
                                 }
-                            }
 
-                            updateDoc(docRef, { players: players })
-                            navigation.navigate("LangingScreen")
-                        }
+                                let price1 = parseFloat(receivedData.asset.numPrice)
+                                let price2 = parseFloat(receivedData.amount)
+                                l.portfolio.balance = receivedData.type === 'buy' ? l.portfolio.balance - (price2 * price1) : l.portfolio.balance + (price2 * price1)
+                                l.portfolio.assets = updatedAssets
+                                playersArray.push(l)
+
+                            } else playersArray.push(l)
+                        })
+
+                        await updateDoc(docRef, { players: playersArray });
+                        navigation.dispatch(CommonActions.navigate({ name: 'LangingScreen' }));
                     }
                 }
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "GP2",
-    "slug": "GP2",
+    "name": "Stocki",
+    "slug": "stocki",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,20 +15,25 @@
       "**/*"
     ],
     "ios": {
-      "jsEngine": "jsc",
       "supportsTablet": true
     },
     "android": {
-      "jsEngine": "jsc",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ziyadnabil.stocki"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "sdkVersion": "49.0.0"
-  },
-  "name": "gp2"
+    "extra": {
+      "eas": {
+        "projectId": "78bacbba-cadb-47bc-afe5-2b9e5b17dbc4"
+      }
+    },
+    "expo": {
+      "userInterfaceStyle": "automatic"
+    }
+  }
 }

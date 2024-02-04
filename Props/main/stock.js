@@ -17,9 +17,12 @@ import {
 } from "firebase/firestore";
 
 const intervals = {
-    '1 Day': 24 * 60 * 60, // 1 day in seconds
-    '7 Days': 7 * 24 * 60 * 60, // 7 days in seconds
-    '1 Month': 30 * 24 * 60 * 60, // 1 month (approximation) in seconds
+    '1 Hour': 60 * 60,
+    '1 Day': 24 * 60 * 60,
+    '7 Days': 7 * 24 * 60 * 60,
+    '1 Month': 30 * 24 * 60 * 60,
+    '6 Months': 6 * 30 * 24 * 60 * 60,
+    '1 Year': 365 * 24 * 60 * 60,
 };
 
 export default function Stock({ navigation }) {
@@ -117,8 +120,7 @@ export default function Stock({ navigation }) {
     return (
         <View style={{
             alignItems: 'center',
-            justifyContent: 'center',
-
+            flex: 1
         }}>
 
             <Text style={{
@@ -148,47 +150,62 @@ export default function Stock({ navigation }) {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexWrap: 'wrap',
             }}>
-                {Object.keys(intervals).map((interval) => (
+                {Object.keys(intervals).map((interval, index) => (
                     <TouchableOpacity
                         style={{
                             marginHorizontal: 5,
                             alignItems: 'center',
                             justifyContent: 'center',
+                            borderRadius: 20,
+                            marginBottom: index % 3 === 2 ? 10 : 0, // Add margin-bottom every third interval
                         }}
                         key={interval}
                         onPress={() => setSelectedInterval(interval)}
                     >
-                        <Text
-                            style={{
-                                backgroundColor: selectedInterval === interval ? '#1573FE' : '#E3E3E3',
-                                color: selectedInterval === interval ? 'white' : 'black',
-                                width: 75,
-                                height: 30,
-                                textAlign: 'center',
-                                textAlignVertical: 'center',
-                                borderRadius: 5,
-                            }}
-                        >
-                            {interval}
-                        </Text>
+                        <View style={{
+                            backgroundColor: selectedInterval === interval ? '#1573FE' : '#E3E3E3',
+                            width: 75,
+                            height: 30,
+                            borderRadius: 5,
+                        }}>
+                            <Text
+                                style={{
+                                    color: selectedInterval === interval ? 'white' : 'black',
+                                    textAlign: 'center',
+                                    textAlignVertical: 'center',
+                                    lineHeight: 30,
+                                }}
+                            >
+                                {interval}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
+
 
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'flex-end',
                 justifyContent: 'center',
-                marginTop: 200
+                position: 'absolute',
+                bottom: 100,
             }}>
-                <TouchableOpacity disabled={!canbuy} onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'trade' })} style={{
-                    height: 50,
-                    width: '75%',
-                    backgroundColor: canbuy ? '#1573FE' : 'red',
-                    borderRadius: 5,
-                    marginRight: 10
-                }}>
+                <TouchableOpacity
+                    disabled={canbuy}
+                    onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'trade' })}
+                    style={{
+                        height: 50,
+                        width: '75%',
+                        backgroundColor: canbuy ? '#1573FE' : 'red',
+                        borderRadius: 5,
+                        marginRight: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        
+                    }}>
                     <Text style={{
                         width: '100%',
                         height: '100%',
@@ -196,15 +213,20 @@ export default function Stock({ navigation }) {
                         textAlign: 'center',
                         textAlignVertical: 'center',
                         fontSize: 25,
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        lineHeight: 50, // Set lineHeight to match the height of the TouchableOpacity
                     }}>Trade</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'fav' })} style={{
-                    padding: 10,
-                    width: '13%',
-                    backgroundColor: '#FFD700',
-                    borderRadius: 5,
-                }}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'fav' })}
+                    style={{
+                        padding: 10,
+                        width: '13%',
+                        backgroundColor: '#FFD700',
+                        borderRadius: 5,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
                     {
                         addedFav ? (
                             <Star size={30} fill='white' color='white' />
@@ -214,7 +236,6 @@ export default function Stock({ navigation }) {
                     }
                 </TouchableOpacity>
             </View>
-
             <Toast />
         </View>
     );

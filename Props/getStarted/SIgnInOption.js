@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import Toast from 'react-native-toast-message'
 
 export default function SignInOption({ navigation }) {
+
   return (
     <View style={styles.container}>
 
@@ -10,28 +12,52 @@ export default function SignInOption({ navigation }) {
         <Text style={{ fontSize: 50, fontWeight: 'bold', textAlign: 'left', bottom: 50 }}>Let's you in</Text>
 
         {/* Facebook Sign In Provider */}
-        <View style={[styles.SIgnInProviders, { backgroundColor: '#ECE7FE' }]}>
+        <TouchableOpacity onPress={() => {
+          Toast.show({
+            type: 'info',
+            text1: 'Coming Soon',
+            text2: 'Sign in from third party apps will be supported soon.',
+            visibilityTime: 5000,
+            autoHide: true
+          });
+        }} style={[styles.SIgnInProviders, { backgroundColor: '#ECE7FE' }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image style={{ width: 50, height: 50 }} source={require('../../assets/logos/facebook.png')} />
             <Text style={{ fontSize: 17, paddingHorizontal: 20 }}>Continue with Facebook</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Google Sign In Provider */}
-        <View style={[styles.SIgnInProviders, { backgroundColor: '#E3F4E1' }]}>
+        <TouchableOpacity onPress={() => {
+          Toast.show({
+            type: 'info',
+            text1: 'Coming Soon',
+            text2: 'Sign in from third party apps will be supported soon.',
+            visibilityTime: 5000,
+            autoHide: true
+          });
+        }} style={[styles.SIgnInProviders, { backgroundColor: '#E3F4E1' }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image style={{ width: 50, height: 50 }} source={require('../../assets/logos/google.png')} />
             <Text style={{ fontSize: 17, paddingHorizontal: 20 }}>Continue with Google</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Apple Sign In Provider */}
-        <View style={[styles.SIgnInProviders, { backgroundColor: '#EBF0F0' }]}>
+        <TouchableOpacity onPress={() => {
+          Toast.show({
+            type: 'info',
+            text1: 'Coming Soon',
+            text2: 'Sign in from third party apps will be supported soon.',
+            visibilityTime: 5000,
+            autoHide: true
+        });
+        }} style={[styles.SIgnInProviders, { backgroundColor: '#EBF0F0' }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image style={{ width: 50, height: 50 }} source={require('../../assets/logos/apple.png')} />
             <Text style={{ fontSize: 17, paddingHorizontal: 20 }}>Continue with Apple</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* SIgn In Using Email And Password */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 50 }}>
@@ -62,6 +88,8 @@ export default function SignInOption({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+
+      <Toast />
     </View>
   );
 }

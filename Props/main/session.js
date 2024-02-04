@@ -190,7 +190,7 @@ export default function App({ navigation }) {
                             </View>
                         ) : (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 10, color: 'white' }}>{moment().diff(item.startDate, 'days') !== 0 ? moment().diff(item.startDate, 'days') + " days gone" : moment().diff(item.startDate, 'hours') !== 0 ? moment().diff(item.startDate, 'hours')  + " hours gone" : moment().diff(item.startDate, 'minutes') + " minutes gone"}</Text>
+                                <Text style={{ fontSize: 10, color: 'white' }}>{moment().diff(item.startDate, 'days') !== 0 ? moment().diff(item.startDate, 'days') + " days gone" : moment().diff(item.startDate, 'hours') !== 0 ? moment().diff(item.startDate, 'hours') + " hours gone" : moment().diff(item.startDate, 'minutes') + " minutes gone"}</Text>
                                 <Text style={{ fontSize: 10, color: 'white' }}>{moment(item.endDate).diff(moment(), 'days')} days left</Text>
                             </View>
 
@@ -362,12 +362,15 @@ export default function App({ navigation }) {
                 transparent={true}
             >
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
-                    <View style={{ alignItems: 'center', backgroundColor: 'white', width: '90%', height: '62%', borderRadius: 10, elevation: 10 }}>
+                    <View style={{ alignItems: 'center', backgroundColor: 'white', width: '90%', height: '62%', borderRadius: 10, elevation: 10, shadowOffset: { width: 0, height: 10 / 2 }, shadowOpacity: 0.3, shadowRadius: 10 / 2 }}>
 
-                        <TouchableOpacity onPress={() => setopenModal(false)} style={{ position: 'absolute', top: 10, right: 10 }}>
+                        <TouchableOpacity
+                            onPress={() => setopenModal(false)}
+                            style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}
+                        >
                             <View style={{ backgroundColor: 'red', borderRadius: 12, padding: 2 }}>
                                 <X color='white' size={25} />
-                            </View>
+                            </View> 
                         </TouchableOpacity>
 
                         {

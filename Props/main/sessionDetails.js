@@ -321,7 +321,7 @@ export default function SessionDetails({ navigation }) {
             </TouchableOpacity>
 
             <BottomSheet ref={bottomSheetRef}>
-                <View style={{ marginHorizontal: 10, height: 120, backgroundColor: 'lightgray', borderRadius: 10, marginTop: 200, elevation: 5 }}>
+                <View style={{ marginHorizontal: 10, height: 120, backgroundColor: 'lightgray', borderRadius: 10, marginTop: 200, elevation: 5, shadowOffset: { width: 0, height: 5 / 2 }, shadowOpacity: 0.3, shadowRadius: 5 / 2 }}>
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
 

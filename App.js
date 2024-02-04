@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Animated, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, Platform, View, Animated, Dimensions, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './database'
@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, GalleryHorizontalEnd, Layers, Package, User } from 'lucide-react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import PortfolioScreen from './Props/main/portfolio'
 import ProfileScreen from './Props/main/profile'
 import HistoryScreen from './Props/main/history'
@@ -228,134 +228,140 @@ export default function App() {
   }
 
   if (loggedIn) return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: styles.tabBar,
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            tabBarStyle: styles.tabBar,
+          }}>
+
+          <Tab.Screen
+            name="Home"
+            component={HomeScreensStack}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => {
+                return <Home size={size} color={color} />;
+              },
+            }}
+            listeners={({ navigation, route }) => ({
+              tabPress: e => {
+                Animated.spring(tabOffsetValue, {
+                  toValue: 0,
+                  useNativeDriver: true
+                }).start()
+              }
+            })}
+          />
+
+          <Tab.Screen
+            name="MarketS"
+            component={MarketScreensStack}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => {
+                return <GalleryHorizontalEnd size={size} color={color} />;
+              },
+            }}
+            listeners={({ navigation, route }) => ({
+              tabPress: e => {
+                Animated.spring(tabOffsetValue, {
+                  toValue: getWidth(),
+                  useNativeDriver: true
+                }).start()
+              }
+            })}
+          />
+
+          <Tab.Screen
+            name="Sessions"
+            component={SessionsScreensStack}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => {
+                return (
+                  <View style={{
+                    width: 50,
+                    height: 50,
+                    backgroundColor: focused ? color : 'white',
+                    borderRadius: 25,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    shadowOffset: { width: 0, height: 3 / 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 3 / 2,
+                    elevation: 3,
+                    marginBottom: 20
+                  }}>
+                    <Layers size={25} color={focused ? 'white' : color} />
+                  </View>
+                )
+              },
+            }}
+            listeners={({ navigation, route }) => ({
+              tabPress: e => {
+                Animated.spring(tabOffsetValue, {
+                  toValue: getWidth() * 2,
+                  useNativeDriver: true
+                }).start()
+              }
+            })}
+          />
+
+          <Tab.Screen
+            name="Portfolio"
+            component={PortfolioScreensStack}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => {
+                return <Package size={size} color={color} />;
+              },
+            }}
+            listeners={({ navigation, route }) => ({
+              tabPress: e => {
+                Animated.spring(tabOffsetValue, {
+                  toValue: getWidth() * 3,
+                  useNativeDriver: true
+                }).start()
+              }
+            })}
+          />
+
+          <Tab.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => {
+                return <User size={size} color={color} />;
+              },
+            }}
+            listeners={({ navigation, route }) => ({
+              tabPress: e => {
+                Animated.spring(tabOffsetValue, {
+                  toValue: getWidth() * 4,
+                  useNativeDriver: true
+                }).start()
+              }
+            })}
+          />
+
+        </Tab.Navigator>
+
+        <Animated.View style={{
+          width: getWidth() - 20,
+          height: 2,
+          backgroundColor: '#1573FE',
+          position: 'absolute',
+          bottom: 20,
+          left: 30,
+          borderRadius: 2,
+          transform: [{
+            translateX: tabOffsetValue
+          }]
         }}>
 
-        <Tab.Screen
-          name="Home"
-          component={HomeScreensStack}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Home size={size} color={color} />;
-            },
-          }}
-          listeners={({ navigation, route }) => ({
-            tabPress: e => {
-              Animated.spring(tabOffsetValue, {
-                toValue: 0,
-                useNativeDriver: true
-              }).start()
-            }
-          })}
-        />
+        </Animated.View>
+      </NavigationContainer>
+    </GestureHandlerRootView>
 
-        <Tab.Screen
-          name="MarketS"
-          component={MarketScreensStack}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <GalleryHorizontalEnd size={size} color={color} />;
-            },
-          }}
-          listeners={({ navigation, route }) => ({
-            tabPress: e => {
-              Animated.spring(tabOffsetValue, {
-                toValue: getWidth(),
-                useNativeDriver: true
-              }).start()
-            }
-          })}
-        />
-
-        <Tab.Screen
-          name="Sessions"
-          component={SessionsScreensStack}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return (
-                <View style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: focused ? color : 'white',
-                  borderRadius: 25,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  elevation: 3,
-                  marginBottom: 20
-                }}>
-                  <Layers size={25} color={focused ? 'white' : color} />
-                </View>
-              )
-            },
-          }}
-          listeners={({ navigation, route }) => ({
-            tabPress: e => {
-              Animated.spring(tabOffsetValue, {
-                toValue: getWidth() * 2,
-                useNativeDriver: true
-              }).start()
-            }
-          })}
-        />
-
-        <Tab.Screen
-          name="Portfolio"
-          component={PortfolioScreensStack}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Package size={size} color={color} />;
-            },
-          }}
-          listeners={({ navigation, route }) => ({
-            tabPress: e => {
-              Animated.spring(tabOffsetValue, {
-                toValue: getWidth() * 3,
-                useNativeDriver: true
-              }).start()
-            }
-          })}
-        />
-
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <User size={size} color={color} />;
-            },
-          }}
-          listeners={({ navigation, route }) => ({
-            tabPress: e => {
-              Animated.spring(tabOffsetValue, {
-                toValue: getWidth() * 4,
-                useNativeDriver: true
-              }).start()
-            }
-          })}
-        />
-
-      </Tab.Navigator>
-
-      <Animated.View style={{
-        width: getWidth() - 20,
-        height: 2,
-        backgroundColor: '#1573FE',
-        position: 'absolute',
-        bottom: 20,
-        left: 30,
-        borderRadius: 2,
-        transform: [{
-          translateX: tabOffsetValue
-        }]
-      }}>
-
-      </Animated.View>
-    </NavigationContainer>
   )
 
   if (!loggedIn) return (
@@ -410,16 +416,14 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: 'white',
     height: 60,
+    padding: Platform.OS === 'ios' ? 30 : 0,
     position: 'absolute',
     bottom: 20,
     marginHorizontal: 20,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowOffset: {
-      width: 10,
-      height: 10
-    },
+    shadowOffset: { width: 0, height: 10 / 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10 / 2,
     elevation: 10
   },
 });

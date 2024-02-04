@@ -103,7 +103,7 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
 
     return (
       <GestureDetector gesture={gesture}>
-        <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: bottomSheetBackground, elevation: 24 }]}>
+        <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: bottomSheetBackground, elevation: 10, shadowOffset: { width: 0, height: 10 / 2 }, shadowOpacity: 0.3, shadowRadius: 10 / 2 }]}>
           <TouchableOpacity onPress={checkSheetActive} style={styles.line} />
           {children}
         </Animated.View>

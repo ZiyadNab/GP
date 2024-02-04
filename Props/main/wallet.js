@@ -39,7 +39,7 @@ export default function Wallet({ navigation }) {
 
                 const activeSessions = []
                 setUserSessions(allSessions)
-                    console.log(allSessions)
+                console.log(allSessions)
                 await Promise.all(
                     allSessions.map(async (sessionId) => {
                         const sessionRef = doc(db, 'sessions', sessionId);
@@ -109,13 +109,10 @@ export default function Wallet({ navigation }) {
                     backgroundColor: 'white',
                     marginHorizontal: 20,
                     borderRadius: 10,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.06,
-                    shadowOffset: {
-                        width: 10,
-                        height: 10
-                    },
-                    elevation: 1
+                    elevation: 1,
+                    shadowOffset: { width: 0, height: 1 / 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 1 / 2
                 }}>
                     <View style={{
                         justifyContent: 'center',
@@ -173,13 +170,10 @@ export default function Wallet({ navigation }) {
                                             backgroundColor: 'white',
                                             marginHorizontal: 20,
                                             borderRadius: 10,
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.06,
-                                            shadowOffset: {
-                                                width: 10,
-                                                height: 10
-                                            },
-                                            elevation: 1
+                                            elevation: 1,
+                                            shadowOffset: { width: 0, height: 1 / 2 },
+                                            shadowOpacity: 0.3,
+                                            shadowRadius: 1 / 2
                                         }}>
                                             <View style={{
                                                 justifyContent: 'center',

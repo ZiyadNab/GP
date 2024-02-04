@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, Text, Image, View, Platform, FlatList, RefreshControl, ScrollView, TextInput, ImageBackground, Pressable } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import Toast from 'react-native-toast-message'
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { auth, db } from '../../database'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import {
@@ -137,14 +137,13 @@ export default function Profile({ navigation }) {
                         DOB: text,
                         pin: '0000',
                         userId: createdAccount.user.uid,
-                        notifications: [],
                         portfolio: {
+                            reward: null,
                             assets: [],
-                            history: [],
                             sessions: [],
                             watchlist: [],
                             profit: 0,
-                            balance: 10000.00,
+                            balance: 100000.00,
                         }
                     });
 
@@ -333,7 +332,23 @@ export default function Profile({ navigation }) {
                             <Text style={{ fontSize: 16, paddingVertical: 10 }} > Date of birth </Text>
                             <Text style={{ fontSize: 16, paddingVertical: 10, }}> {text} </Text>
 
-                            {showDatePicker && (
+                            <DateTimePickerModal
+                                isVisible={showDatePicker}
+                                mode="date"
+                                onConfirm={(date) => {
+                                    setdate(date);
+                                    setshow(false);
+                                    let tempdate = new Date(date);
+                                    let fDate = tempdate.getDate() + '/' + (tempdate.getMonth() + 1) + '/' + tempdate.getFullYear();
+                                    setText(fDate);
+                                    DOBInputAnimatedBorder.value = Boolean(date) ? withTiming('#1573FE') : withTiming('#D9D9D9')
+                                }}
+                                onCancel={() => {
+                                    setshow(false)
+                                }}
+                            />
+
+                            {/* {showDatePicker && (
                                 <DateTimePicker
                                     testID="DateTimePicker"
                                     value={date}
@@ -344,13 +359,10 @@ export default function Profile({ navigation }) {
                                         setdate(currentDate);
                                         setshow(!showDatePicker)
 
-                                        let tempdate = new Date(currentDate);
-                                        let fDate = tempdate.getDate() + '/' + (tempdate.getMonth() + 1) + '/' + tempdate.getFullYear();
-                                        setText(fDate);
-                                        DOBInputAnimatedBorder.value = Boolean(selecetedDate) ? withTiming('#1573FE') : withTiming('#D9D9D9')
+                                        
                                     }}
                                 />
-                            )}
+                            )} */}
                         </AnimatedTouchableOpacity>
 
                         <Animated.View style={[styles.ProfileView, {
@@ -373,6 +385,7 @@ export default function Profile({ navigation }) {
                         }]}>
                             <Text style={styles.ProfileText}> Repeat Password </Text>
                             <TextInput
+                                secureTextEntry={true}
                                 onChangeText={(v) => {
                                     repeatPasswordInputAnimatedBorder.value = Boolean(v) ? withTiming('#1573FE') : withTiming('#D9D9D9')
                                     setRepeatPassword(v)

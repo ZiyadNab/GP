@@ -135,13 +135,19 @@ export default function Trade({ navigation }) {
                     marginTop: 40,
                     width: '50%',
                 }}>
-                    <TextInput keyboardType="decimal-pad" style={{
-                        padding: 12,
-                        fontWeight: 'bold',
-                        fontSize: 40,
-                        textAlign: 'center'
+                    <TextInput
+  keyboardType="decimal-pad"
+  style={{
+    padding: 12,
+    fontWeight: 'bold',
+    fontSize: 40,
+    textAlign: 'center',
+  }}
+  onChangeText={(v) => setAmount(v)}
+  placeholder='Amount'
+  returnKeyType='done'  // Specify the return key type
+/>
 
-                    }} onChangeText={(v) => setAmount(v)} caretHidden={true} placeholder='Amount' />
 
                     <View style={{
                         marginTop: -10,
@@ -159,7 +165,7 @@ export default function Trade({ navigation }) {
                     borderRadius: 10,
                     marginHorizontal: 20,
                     marginTop: 5,
-                    marginBottom: 5,
+                    marginBottom: 5
                 }}>
                     <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Sell"}</Text>
                 </View>
@@ -172,7 +178,7 @@ export default function Trade({ navigation }) {
                     borderRadius: 10,
                     marginHorizontal: 20,
                     marginTop: 5,
-                    marginBottom: 100,  // Add marginBottom to push it away from the bottom edge
+                    marginBottom: 100
                 }}>
                     <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Buy"}</Text>
                 </View>

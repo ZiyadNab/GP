@@ -178,13 +178,10 @@ export default function WalletMarket({ navigation }) {
                     backgroundColor: 'white',
                     marginHorizontal: 20,
                     borderRadius: 10,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.06,
-                    shadowOffset: {
-                        width: 10,
-                        height: 10
-                    },
-                    elevation: 1
+                    elevation: 1,
+                    shadowOffset: { width: 0, height: 1 / 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 1 / 2
                 }}>
                     <View style={{
                         justifyContent: 'center',
@@ -242,13 +239,10 @@ export default function WalletMarket({ navigation }) {
                                             backgroundColor: 'white',
                                             marginHorizontal: 20,
                                             borderRadius: 10,
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.06,
-                                            shadowOffset: {
-                                                width: 10,
-                                                height: 10
-                                            },
-                                            elevation: 1
+                                            elevation: 1,
+                                            shadowOffset: { width: 0, height: 1 / 2 },
+                                            shadowOpacity: 0.3,
+                                            shadowRadius: 1 / 2
                                         }}>
                                             <View style={{
                                                 justifyContent: 'center',
@@ -302,7 +296,7 @@ export default function WalletMarket({ navigation }) {
                 if (waletChosen != null && dType === "trade") {
                     navigation.navigate("Trade", { data: { asset: receivedData, wallet: userSessions[waletChosen] } })
 
-                } else if(waletChosen != null && dType === "fav"){
+                } else if (waletChosen != null && dType === "fav") {
                     addFav()
                 } else Toast.show({
                     type: 'info',
@@ -320,7 +314,7 @@ export default function WalletMarket({ navigation }) {
                     marginTop: 5,
                     marginBottom: 100,  // Add marginBottom to push it away from the bottom edge
                 }}>
-                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{ dType === "trade" ? "Next" : !addedFav ? "Favourite" : "Unfavourite"}</Text>
+                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{dType === "trade" ? "Next" : !addedFav ? "Favourite" : "Unfavourite"}</Text>
                 </View>
             </TouchableOpacity>
 

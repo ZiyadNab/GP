@@ -132,17 +132,41 @@ export default function Login({ navigation }) {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <View style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
+                    <TouchableOpacity onPress={() => {
+                        Toast.show({
+                            type: 'info',
+                            text1: 'Coming Soon',
+                            text2: 'Sign in from third party apps will be supported soon.',
+                            visibilityTime: 5000,
+                            autoHide: true
+                        });
+                    }} style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
                         <Image style={{ width: 35, height: 35 }} source={require('../../assets/logos/facebook.png')} />
-                    </View>
+                    </TouchableOpacity>
 
-                    <View style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
+                    <TouchableOpacity onPress={() => {
+                        Toast.show({
+                            type: 'info',
+                            text1: 'Coming Soon',
+                            text2: 'Sign in from third party apps will be supported soon.',
+                            visibilityTime: 5000,
+                            autoHide: true
+                        });
+                    }} style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
                         <Image style={{ width: 35, height: 35 }} source={require('../../assets/logos/google.png')} />
-                    </View>
+                    </TouchableOpacity>
 
-                    <View style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
+                    <TouchableOpacity onPress={() => {
+                        Toast.show({
+                            type: 'info',
+                            text1: 'Coming Soon',
+                            text2: 'Sign in from third party apps will be supported soon.',
+                            visibilityTime: 5000,
+                            autoHide: true
+                        });
+                    }} style={{ paddingHorizontal: 35, paddingVertical: 15, marginHorizontal: 5, borderColor: '#EEEEEE', borderWidth: 2, borderRadius: 10 }}>
                         <Image style={{ width: 35, height: 35 }} source={require('../../assets/logos/apple.png')} />
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Create An Account */}
@@ -158,7 +182,7 @@ export default function Login({ navigation }) {
             </View>
 
             <Toast />
-        </View>
+        </View >
     );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useImperativeHandle, useCallback } from "react";
 import { StyleSheet, ActivityIndicator, Text, Image, View, ScrollView } from 'react-native';
-import { Bell, ChevronUp, ChevronDown, Minus } from 'lucide-react-native';
+import { Bell, ChevronUp, ChevronDown, Minus, Coins } from 'lucide-react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { auth, db } from '../../database'
 import NotificationsList from "../helpers/NotificationList";
@@ -21,14 +21,17 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
+import moment from "moment";
 
 export default Landing = () => {
+  const [reward, setReward] = useState(null)
+  const [nextRewardDate, setNextRewardDate] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState(null)
   const [balance, setBalance] = useState(null)
   const [profit, setProfit] = useState(0)
   const [time, setTime] = useState('05:00');
-  const [portfolio, setPortolio] = useState()
+  const [userBalance, setUserBalance] = useState()
   const [watchlist, setWatchlist] = useState([])
   const [icon, setIcon] = useState(null)
   const [assets, setAssets] = useState([])
@@ -44,7 +47,23 @@ export default Landing = () => {
     const unsubscribe = onSnapshot(docRef, async (doc) => {
       if (doc.exists) {
         const userData = doc.data();
+        if (doc.data().portfolio.reward === null) {
+          updateDoc(docRef, {
+            "portfolio.reward": moment().add(1, 'days').toISOString()
+          })
+
+        } else if (moment(doc.data().portfolio.reward).isBefore(moment(), 'day')) {
+          updateDoc(docRef, {
+            "portfolio.balance": userData.portfolio.balance + 1000,
+            "portfolio.reward": moment().add(1, 'days').toISOString()
+          })
+
+        } else {
+          setNextRewardDate(doc.data().portfolio.reward)
+
+        }
         setFullName(userData.fullname);
+        setUserBalance(userData.portfolio.balance)
         setBalance(userData.portfolio.balance.toString().split('.'));
         const updatedWatchlist = [];
 
@@ -85,6 +104,26 @@ export default Landing = () => {
 
     // Set up the countdown timer interval
     const timer = setInterval(() => {
+
+      const now = moment();
+      const targetDate = moment(nextRewardDate);
+      const duration = moment.duration(targetDate.diff(now));
+
+      const days = Math.floor(duration.asDays());
+      const hours = duration.hours();
+      const minutes = duration.minutes();
+      const seconds = duration.seconds();
+      if (days >= 1) setReward(`${days} days`)
+      else if (hours >= 1) setReward(`${hours} hours and ${minutes} minutes`)
+      else if (minutes >= 1) setReward(`${minutes} minutes and ${seconds} seconds`)
+      else if (seconds >= 1) setReward(`${seconds} seconds`)
+      else if (seconds < 0) {
+        updateDoc(docRef, {
+          "portfolio.balance": userBalance + 1000,
+          "portfolio.reward": moment().add(1, 'days').toISOString()
+        })
+      }
+
       setTime((prevTime) => {
         const [minutes, seconds] = prevTime.split(':').map(Number);
 
@@ -146,7 +185,7 @@ export default Landing = () => {
       clearInterval(timer);
       unsubscribe();
     };
-  }, [assets]);
+  }, [assets, nextRewardDate]);
 
 
   if (loading) {
@@ -214,6 +253,23 @@ export default Landing = () => {
           <Text style={{ fontSize: 15, color: 'white' }}>.{balance[1] ? balance[1].substring(0, 2) : '00'}</Text>
         </Text>
 
+        {
+          nextRewardDate !== null ? (
+            <View style={{
+              flexDirection: 'row',
+              marginTop: 5,
+              alignItems: 'center'
+            }}>
+              <Coins color="lightgreen" size={13} />
+              <Text style={{
+                color: 'white',
+                fontSize: 10,
+                marginLeft: 5
+              }}>Your next reward in {reward}</Text>
+            </View>
+          ) : null
+        }
+
         <View style={{
           backgroundColor: '#515151',
           padding: 15,
@@ -262,6 +318,9 @@ export default Landing = () => {
                 backgroundColor: '#fff',
                 padding: 10,
                 elevation: 3,
+                shadowOffset: { width: 0, height: 3 / 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 3 / 2,
                 margin: 10,
                 marginLeft: 20,
                 borderRadius: 10,

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, ActivityIndicator, Text, Dimensions, Modal, Image, ScrollView } from 'react-native';
-import { CandlestickChart, LineChart } from 'react-native-wagmi-charts';
+import { View, TouchableOpacity, ActivityIndicator, Text, Dimensions } from 'react-native';
+// import { CandlestickChart } from 'react-native-wagmi-charts';
 import { useRoute } from '@react-navigation/native';
-import { Star, StarIcon } from 'lucide-react-native';
+import { AntDesign } from '@expo/vector-icons';
 import { auth, db } from '../../database'
 import Toast from 'react-native-toast-message'
 import {
@@ -32,61 +32,11 @@ export default function Stock({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState(null);
     const [selectedInterval, setSelectedInterval] = useState('1 Day');
-    const [addedFav, setAddedFav] = useState(false)
     const [canbuy, setCanbuy] = useState(false)
-
-    async function addFav() {
-
-        // Update the Firestore document
-        const docRef = doc(db, "users", auth.currentUser.uid);
-
-        if (addedFav) {
-
-            try {
-                await updateDoc(docRef, {
-                    'portfolio.watchlist': arrayRemove(receivedData)
-                })
-
-                Toast.show({
-                    type: 'success',
-                    text1: 'Success',
-                    text2: `The ${receivedData.title}, ${receivedData.name} has been removed to your watchlist successfully!`,
-                    visibilityTime: 5000,
-                    autoHide: true
-                })
-
-            } catch (error) {
-                // Handle any errors that occur during the update (optional)
-                console.error("Error updating user information:", error);
-            }
-        } else {
-
-            try {
-                await updateDoc(docRef, {
-                    'portfolio.watchlist': arrayUnion(receivedData)
-                })
-
-                Toast.show({
-                    type: 'success',
-                    text1: 'Success',
-                    text2: `The ${receivedData.title}, ${receivedData.name} has been added to your watchlist successfully!`,
-                    visibilityTime: 5000,
-                    autoHide: true
-                })
-
-            } catch (error) {
-                // Handle any errors that occur during the update (optional)
-                console.error("Error updating user information:", error);
-            }
-        }
-
-        setAddedFav(!addedFav)
-
-    }
 
     useEffect(() => {
         const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-        fetch(`https://eodhd.com/api/intraday/${receivedData.title}.${receivedData.region}?from=${currentTimeInSeconds - intervals[selectedInterval]}&to=${currentTimeInSeconds}&interval=1h&api_token=659429ddd804e2.44750789&fmt=json`)
+        fetch(`https://eodhd.com/api/intraday/${receivedData.title}.${receivedData.region}?from=${currentTimeInSeconds - intervals[selectedInterval]}&to=${currentTimeInSeconds}&interval=${selectedInterval === "1 Hour" ? '1m' : selectedInterval === "1 Day" ? '5m' : '1h'}&api_token=659429ddd804e2.44750789&fmt=json`)
             .then(async (res) => {
                 const json = await res.json();
                 setChartData(json);
@@ -99,13 +49,6 @@ export default function Stock({ navigation }) {
 
                 setLoading(false);
             });
-
-        const docRef = doc(db, "users", auth.currentUser.uid);
-        getDoc(docRef)
-            .then(async res => {
-                setAddedFav(res.data().portfolio.watchlist.some(item => item.title === receivedData.title))
-
-            })
 
     }, [selectedInterval]);
 
@@ -130,7 +73,7 @@ export default function Stock({ navigation }) {
                 marginTop: 50
             }}>{receivedData.title}, {receivedData.name}</Text>
 
-            <View style={{
+            {/* <View style={{
                 margin: 10,
                 backgroundColor: '#E8E8E8',
                 borderRadius: 5,
@@ -144,7 +87,7 @@ export default function Stock({ navigation }) {
                         </CandlestickChart.Crosshair>
                     </CandlestickChart>
                 </CandlestickChart.Provider>
-            </View>
+            </View> */}
 
             <View style={{
                 flexDirection: 'row',
@@ -204,7 +147,7 @@ export default function Stock({ navigation }) {
                         marginRight: 10,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        
+
                     }}>
                     <Text style={{
                         width: '100%',
@@ -221,19 +164,14 @@ export default function Stock({ navigation }) {
                     onPress={() => navigation.navigate("marketWallet", { data: receivedData, type: 'fav' })}
                     style={{
                         padding: 10,
-                        width: '13%',
+                        width: 50,
+                        height: 50,
                         backgroundColor: '#FFD700',
                         borderRadius: 5,
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
-                    {
-                        addedFav ? (
-                            <Star size={30} fill='white' color='white' />
-                        ) : (
-                            <Star size={30} color='white' />
-                        )
-                    }
+                    <AntDesign name="star" size={25} color='white' />
                 </TouchableOpacity>
             </View>
             <Toast />

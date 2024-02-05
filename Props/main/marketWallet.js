@@ -1,7 +1,5 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react'
-import { Settings, CalendarClock, ChevronUp } from 'lucide-react-native';
-import LottieView from "lottie-react-native";
 import { useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message'
 import { auth, db } from '../../database'
@@ -19,7 +17,7 @@ export default function WalletMarket({ navigation }) {
     const route = useRoute();
     const receivedData = route.params?.data;
     const dType = route.params?.type
-    const [waletChosen, setWaletChosen] = useState(null)
+    const [waletChosen, setWaletChosen] = useState([])
     const [userSessions, setUserSessions] = useState([])
     const [wallets, setWallets] = useState([])
     const [loading, setLoading] = useState(true)
@@ -33,62 +31,139 @@ export default function WalletMarket({ navigation }) {
     };
 
     async function addFav() {
-        setAddedFav(!addedFav)
 
-        // Update the Firestore document
-        const docRef = doc(db, "users", userSessions[waletChosen] === "personal" ? auth.currentUser.uid : userSessions[waletChosen]);
+        Toast.show({
+            type: 'info',
+            text1: 'Please Wait',
+            text2: `We are working to update your watch list please wait!`,
+            visibilityTime: 5000,
+            autoHide: true
+        })
 
-        if (addedFav) {
-
-            try {
-
-                Toast.show({
-                    type: 'success',
-                    text1: 'Success',
-                    text2: `The ${receivedData.title}, ${receivedData.name} has been removed to your watchlist successfully!`,
-                    visibilityTime: 5000,
-                    autoHide: true
+        if (!waletChosen.includes(0)) {
+            const docRef = doc(db, "users", auth.currentUser.uid);
+            await updateDoc(docRef, {
+                'portfolio.watchlist': arrayRemove({
+                    icon: receivedData.icon,
+                    name: receivedData.name,
+                    region: receivedData.region,
+                    title: receivedData.title,
                 })
+            })
 
-                await updateDoc(docRef, {
-                    'portfolio.watchlist': arrayRemove({
-                        icon: receivedData.icon,
-                        name: receivedData.name,
-                        region: receivedData.region,
-                        title: receivedData.title,
-                    })
-                })
-
-            } catch (error) {
-                // Handle any errors that occur during the update (optional)
-                console.error("Error updating user information:", error);
-            }
         } else {
-
-            try {
-
-                Toast.show({
-                    type: 'success',
-                    text1: 'Success',
-                    text2: `The ${receivedData.title}, ${receivedData.name} has been added to your watchlist successfully!`,
-                    visibilityTime: 5000,
-                    autoHide: true
+            const docRef = doc(db, "users", auth.currentUser.uid);
+            await updateDoc(docRef, {
+                'portfolio.watchlist': arrayUnion({
+                    icon: receivedData.icon,
+                    name: receivedData.name,
+                    region: receivedData.region,
+                    title: receivedData.title,
                 })
+            })
 
-                await updateDoc(docRef, {
-                    'portfolio.watchlist': arrayUnion({
-                        icon: receivedData.icon,
-                        name: receivedData.name,
-                        region: receivedData.region,
-                        title: receivedData.title,
-                    })
-                })
-
-            } catch (error) {
-                // Handle any errors that occur during the update (optional)
-                console.error("Error updating user information:", error);
-            }
         }
+
+        waletChosen.map(async (e, i) => {
+            if (e !== 0) {
+                const sessionRef = doc(db, "sessions", userSessions[e]);
+                const sessionSnap = await getDoc(sessionRef);
+                if (sessionSnap.exists()) {
+                    const sessionData = sessionSnap.data();
+
+                    const playersArray = []
+                    sessionData.players.forEach(async (l, i) => {
+                        if (l.userId === auth.currentUser.uid) {
+
+                            const updatedWatchlist = l.portfolio.watchlist
+                            const existingIndex = updatedWatchlist.findIndex(
+                                (obj) => obj.title === receivedData.title && obj.region === receivedData.region
+                            );
+
+                            if (existingIndex === -1) {
+                                
+                                updatedWatchlist.push({
+                                    icon: receivedData.icon,
+                                    name: receivedData.name,
+                                    region: receivedData.region,
+                                    title: receivedData.title,
+                                });
+
+                            } else {
+                                updatedWatchlist.splice(existingIndex, 1)
+                            }
+                            
+                            playersArray.push(l)
+
+                        } else playersArray.push(l)
+                    })
+
+                    await updateDoc(sessionRef, {
+                        'players': playersArray
+                    })
+                }
+            }
+        })
+
+        Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: `Your watchlist has been updated!`,
+            visibilityTime: 5000,
+            autoHide: true
+        })
+
+        // if (addedFav) {
+
+        //     try {
+
+        //         Toast.show({
+        //             type: 'success',
+        //             text1: 'Success',
+        //             text2: `The ${receivedData.title}, ${receivedData.name} has been removed to your watchlist successfully!`,
+        //             visibilityTime: 5000,
+        //             autoHide: true
+        //         })
+
+        //         await updateDoc(docRef, {
+        //             'portfolio.watchlist': arrayRemove({
+        //                 icon: receivedData.icon,
+        //                 name: receivedData.name,
+        //                 region: receivedData.region,
+        //                 title: receivedData.title,
+        //             })
+        //         })
+
+        //     } catch (error) {
+        //         // Handle any errors that occur during the update (optional)
+        //         console.error("Error updating user information:", error);
+        //     }
+        // } else {
+
+        //     try {
+
+        //         Toast.show({
+        //             type: 'success',
+        //             text1: 'Success',
+        //             text2: `The ${receivedData.title}, ${receivedData.name} has been added to your watchlist successfully!`,
+        //             visibilityTime: 5000,
+        //             autoHide: true
+        //         })
+
+        //         await updateDoc(docRef, {
+        //             'portfolio.watchlist': arrayUnion({
+        //                 icon: receivedData.icon,
+        //                 name: receivedData.name,
+        //                 region: receivedData.region,
+        //                 title: receivedData.title,
+        //             })
+        //         })
+
+        //     } catch (error) {
+        //         // Handle any errors that occur during the update (optional)
+        //         console.error("Error updating user information:", error);
+        //     }
+        // }
 
 
     }
@@ -98,7 +173,6 @@ export default function WalletMarket({ navigation }) {
 
         const unsubscribe = onSnapshot(docRef, async (docSnapshot) => {
             if (docSnapshot.exists()) {
-                setAddedFav(docSnapshot.data().portfolio.watchlist.some(item => item.name === receivedData.name))
                 let allSessions = ["personal"]
                 const userData = docSnapshot.data();
                 userData.portfolio.sessions
@@ -106,11 +180,19 @@ export default function WalletMarket({ navigation }) {
                         allSessions.push(e)
                     })
 
+                if (dType === "fav") {
+                    userData.portfolio.watchlist
+                        .map(e => {
+                            if (e.title === receivedData.title && e.region === receivedData.region) setWaletChosen((prevWaletChosen) => [...prevWaletChosen, 0]);
+
+                        })
+                }
+
                 const activeSessions = []
                 setUserSessions(allSessions)
 
                 await Promise.all(
-                    allSessions.map(async (sessionId) => {
+                    allSessions.map(async (sessionId, index) => {
                         const sessionRef = doc(db, 'sessions', sessionId);
                         const sessionSnap = await getDoc(sessionRef);
 
@@ -123,6 +205,20 @@ export default function WalletMarket({ navigation }) {
                                     image: sessionData.icon,
                                     isRequire: false
                                 });
+
+                                sessionData.players
+                                    .map(e => {
+
+                                        if (e.userId === auth.currentUser.uid) {
+                                            e.portfolio.watchlist
+                                                .map(e => {
+                                                    if (e.title === receivedData.title && e.region === receivedData.region) setWaletChosen((prevWaletChosen) => [...prevWaletChosen, index]);
+
+                                                })
+                                        }
+
+
+                                    })
                             }
                         }
                     })
@@ -168,8 +264,14 @@ export default function WalletMarket({ navigation }) {
                 flex: 1  // Make the ScrollView take up the remaining space
             }}>
                 <TouchableOpacity onPress={() => {
-                    if (waletChosen === 0) setWaletChosen(null)
-                    else setWaletChosen(0)
+
+                    if (dType === "trade") {
+                        if (waletChosen === 0) setWaletChosen(null)
+                        else setWaletChosen(0)
+                    } else {
+                        if (waletChosen.includes(0)) setWaletChosen((prevWaletChosen) => prevWaletChosen.filter(value => value !== 0));
+                        else setWaletChosen((prevWaletChosen) => [...prevWaletChosen, 0]);
+                    }
 
                 }} style={{
                     justifyContent: 'center',
@@ -209,8 +311,8 @@ export default function WalletMarket({ navigation }) {
                                 width: 25,
                                 height: 25,
                                 borderRadius: 12.5,
-                                backgroundColor: waletChosen === 0 ? 'white' : '#E3EEFF',
-                                borderColor: waletChosen === 0 ? '#1573FE' : '#C7DDFF',
+                                backgroundColor: dType === "trade" ? waletChosen === 0 ? 'white' : '#E3EEFF' : waletChosen.includes(0) ? 'white' : '#E3EEFF',
+                                borderColor: dType === "trade" ? waletChosen === 0 ? '#1573FE' : '#C7DDFF' : waletChosen.includes(0) ? '#1573FE' : '#C7DDFF',
                                 borderWidth: 5,
                                 marginRight: 10,  // Add margin to push it away from the right edge
                             }}>
@@ -229,8 +331,14 @@ export default function WalletMarket({ navigation }) {
                                         marginBottom: 5,
                                     }}>
                                         <TouchableOpacity onPress={() => {
-                                            if (waletChosen === i + 1) setWaletChosen(null)
-                                            else setWaletChosen(i + 1)
+                                            if (dType === "trade") {
+                                                if (waletChosen === i + 1) setWaletChosen(null)
+                                                else setWaletChosen(i + 1)
+                                            } else {
+                                                if (waletChosen.includes(i + 1)) setWaletChosen((prevWaletChosen) => prevWaletChosen.filter(value => value !== i + 1));
+                                                else setWaletChosen((prevWaletChosen) => [...prevWaletChosen, i + 1]);
+
+                                            }
 
                                         }} style={{
                                             justifyContent: 'center',
@@ -274,8 +382,8 @@ export default function WalletMarket({ navigation }) {
                                                         width: 25,
                                                         height: 25,
                                                         borderRadius: 12.5,
-                                                        backgroundColor: waletChosen === i + 1 ? 'white' : '#E3EEFF',
-                                                        borderColor: waletChosen === i + 1 ? '#1573FE' : '#C7DDFF',
+                                                        backgroundColor: dType === "trade" ? waletChosen === i + 1 ? 'white' : '#E3EEFF' : waletChosen.includes(i + 1) ? 'white' : '#E3EEFF',
+                                                        borderColor: dType === "trade" ? waletChosen === i + 1 ? '#1573FE' : '#C7DDFF' : waletChosen.includes(i + 1) ? '#1573FE' : '#C7DDFF',
                                                         borderWidth: 5,
                                                         marginRight: 10,  // Add margin to push it away from the right edge
                                                     }}>
@@ -293,7 +401,7 @@ export default function WalletMarket({ navigation }) {
             </View>
 
             <TouchableOpacity onPress={() => {
-                if (waletChosen != null && dType === "trade") {
+                if (waletChosen != null && waletChosen.length !== 0 && dType === "trade") {
                     navigation.navigate("Trade", { data: { asset: receivedData, wallet: userSessions[waletChosen] } })
 
                 } else if (waletChosen != null && dType === "fav") {
@@ -314,7 +422,7 @@ export default function WalletMarket({ navigation }) {
                     marginTop: 5,
                     marginBottom: 100,  // Add marginBottom to push it away from the bottom edge
                 }}>
-                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{dType === "trade" ? "Next" : !addedFav ? "Favourite" : "Unfavourite"}</Text>
+                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{dType === "trade" ? "Next" : "Update Favourite List"}</Text>
                 </View>
             </TouchableOpacity>
 

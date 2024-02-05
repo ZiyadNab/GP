@@ -1,6 +1,6 @@
-import React, { useState, useRef, useImperativeHandle, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, ScrollView, Text, ActivityIndicator, View, TextInput, TouchableOpacity } from 'react-native';
-import { Search, ChevronLeftCircle, ChevronRightCircle } from 'lucide-react-native';
+import { Entypo } from '@expo/vector-icons';
 import NotificationsList from "../helpers/NotificationList";
 import Animated, {
     interpolate,
@@ -355,12 +355,12 @@ export default function Market({ navigation }) {
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, alignItems: 'center' }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handlePagination('prev')}>
-                                        <ChevronLeftCircle size={25} color={'#1573FE'} />
+                                        <Entypo name="chevron-with-circle-left" size={25} color={'#1573FE'} />
                                     </TouchableOpacity>
                                     <Text style={{ textAlign: 'center' }}>{`${pagings + 1} / ${chunkedSymbols.length}`}</Text>
                                 </View>
                                 <TouchableOpacity style={{ marginLeft: 5 }} onPress={() => handlePagination('next')}>
-                                    <ChevronRightCircle size={25} color={'#1573FE'} />
+                                    <Entypo name="chevron-with-circle-right" size={25} color={'#1573FE'} />
                                 </TouchableOpacity>
                             </View>
                         ) : null : null

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -31,9 +31,6 @@
       "eas": {
         "projectId": "78bacbba-cadb-47bc-afe5-2b9e5b17dbc4"
       }
-    },
-    "expo": {
-      "userInterfaceStyle": "automatic"
     }
   }
 }

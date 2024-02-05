@@ -1,7 +1,5 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react'
-import { Settings, CalendarClock, ChevronUp } from 'lucide-react-native';
-import LottieView from "lottie-react-native";
 import Toast from 'react-native-toast-message'
 import { auth, db } from '../../database'
 import moment from 'moment';
@@ -39,7 +37,6 @@ export default function Wallet({ navigation }) {
 
                 const activeSessions = []
                 setUserSessions(allSessions)
-                console.log(allSessions)
                 await Promise.all(
                     allSessions.map(async (sessionId) => {
                         const sessionRef = doc(db, 'sessions', sessionId);

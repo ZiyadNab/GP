@@ -347,22 +347,6 @@ export default function Profile({ navigation }) {
                                     setshow(false)
                                 }}
                             />
-
-                            {/* {showDatePicker && (
-                                <DateTimePicker
-                                    testID="DateTimePicker"
-                                    value={date}
-                                    mode="date" // Set the mode to 'date'
-                                    display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
-                                    onChange={(event, selecetedDate) => {
-                                        const currentDate = selecetedDate || date;
-                                        setdate(currentDate);
-                                        setshow(!showDatePicker)
-
-                                        
-                                    }}
-                                />
-                            )} */}
                         </AnimatedTouchableOpacity>
 
                         <Animated.View style={[styles.ProfileView, {

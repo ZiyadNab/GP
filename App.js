@@ -1,16 +1,18 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { StatusBar } from 'react-native';
 import { StyleSheet, Platform, View, Animated, Dimensions, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import 'react-native-gesture-handler';
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './database'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, GalleryHorizontalEnd, Layers, Package, User } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import PortfolioScreen from './Props/main/portfolio'
 import ProfileScreen from './Props/main/profile'
-import HistoryScreen from './Props/main/history'
 import SessionsScreen from './Props/main/session'
 import LangingScreen from './Props/main/landing'
 import MarketScreen from './Props/main/market'
@@ -25,8 +27,6 @@ import marketWalletScreen from './Props/main/marketWallet'
 import TradeScreen from './Props/main/trade'
 import SessionDetailsScreen from './Props/main/sessionDetails'
 
-const Tab = createBottomTabNavigator()
-
 function getWidth() {
   let width = Dimensions.get("window").width
   width -= 40
@@ -36,147 +36,153 @@ function getWidth() {
 const PortfolioScreensStack = () => {
   const Stack = createStackNavigator();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar
-      }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: styles.tabBar
+        }}>
 
-      <Stack.Screen
-        name="WalletScreen"
-        component={WalletScreen}
-      />
+        <Stack.Screen
+          name="WalletScreen"
+          component={WalletScreen}
+        />
 
-      <Stack.Screen
-        name="PortfolioScreen"
-        component={PortfolioScreen}
-      />
+        <Stack.Screen
+          name="PortfolioScreen"
+          component={PortfolioScreen}
+        />
 
-      <Stack.Screen
-        name="Stock"
-        component={StockScreen}
-      />
+        <Stack.Screen
+          name="Stock"
+          component={StockScreen}
+        />
 
-      <Stack.Screen
-        name="Market"
-        component={MarketScreen}
-      />
+        <Stack.Screen
+          name="Market"
+          component={MarketScreen}
+        />
 
-      <Stack.Screen
-        name="HistoryScreen"
-        component={HistoryScreen}
-      />
+      </Stack.Navigator>
+    </GestureHandlerRootView>
 
-    </Stack.Navigator>
   )
 };
 
 const MarketScreensStack = () => {
   const Stack = createStackNavigator();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: styles.tabBar,
 
-      }}>
+        }}>
 
-      <Stack.Screen
-        name="Market"
-        component={MarketScreen}
-      />
+        <Stack.Screen
+          name="Market"
+          component={MarketScreen}
+        />
 
-      <Stack.Screen
-        name="Stock"
-        component={StockScreen}
-      />
+        <Stack.Screen
+          name="Stock"
+          component={StockScreen}
+        />
 
-      <Stack.Screen
-        name="marketWallet"
-        component={marketWalletScreen}
-      />
+        <Stack.Screen
+          name="marketWallet"
+          component={marketWalletScreen}
+        />
 
-      <Stack.Screen
-        name="Trade"
-        component={TradeScreen}
-      />
+        <Stack.Screen
+          name="Trade"
+          component={TradeScreen}
+        />
 
-      <Stack.Screen
-        name="Pin"
-        component={VerificationCode}
-      />
+        <Stack.Screen
+          name="Pin"
+          component={VerificationCode}
+        />
 
-    </Stack.Navigator>
+        <Stack.Screen
+          name="LangingScreen"
+          component={LangingScreen}
+        />
+
+      </Stack.Navigator>
+    </GestureHandlerRootView>
+
   )
 };
 
 const SessionsScreensStack = () => {
   const Stack = createStackNavigator();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar
-      }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: styles.tabBar
+        }}>
 
-      <Stack.Screen
-        name="Session"
-        component={SessionsScreen}
-      />
+        <Stack.Screen
+          name="Session"
+          component={SessionsScreen}
+        />
 
-      <Stack.Screen
-        name="SessionDetails"
-        component={SessionDetailsScreen}
-      />
+        <Stack.Screen
+          name="SessionDetails"
+          component={SessionDetailsScreen}
+        />
 
-      <Stack.Screen
-        name="WalletScreen"
-        component={WalletScreen}
-      />
+        <Stack.Screen
+          name="WalletScreen"
+          component={WalletScreen}
+        />
 
-      <Stack.Screen
-        name="PortfolioScreen"
-        component={PortfolioScreen}
-      />
+        <Stack.Screen
+          name="PortfolioScreen"
+          component={PortfolioScreen}
+        />
 
-      <Stack.Screen
-        name="Stock"
-        component={StockScreen}
-      />
+        <Stack.Screen
+          name="Stock"
+          component={StockScreen}
+        />
 
-      <Stack.Screen
-        name="Market"
-        component={MarketScreen}
-      />
+        <Stack.Screen
+          name="Market"
+          component={MarketScreen}
+        />
 
-      <Stack.Screen
-        name="HistoryScreen"
-        component={HistoryScreen}
-      />
+      </Stack.Navigator>
+    </GestureHandlerRootView>
 
-    </Stack.Navigator>
   )
 };
 
 const HomeScreensStack = () => {
   const Stack = createStackNavigator();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar
-      }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: styles.tabBar
+        }}>
 
-      <Stack.Screen
-        name="LangingScreen"
-        component={LangingScreen}
-      />
+        <Stack.Screen
+          name="LangingScreen"
+          component={LangingScreen}
+        />
 
-    </Stack.Navigator>
+      </Stack.Navigator>
+    </GestureHandlerRootView>
   )
 };
 
@@ -185,6 +191,7 @@ export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const tabOffsetValue = useRef(new Animated.Value(0)).current
   const Stack = createStackNavigator();
+  const Tab = createBottomTabNavigator()
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -229,6 +236,7 @@ export default function App() {
 
   if (loggedIn) return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar hidden={false} translucent={true} backgroundColor="transparent" barStyle="dark-content" />
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={{
@@ -242,7 +250,7 @@ export default function App() {
             component={HomeScreensStack}
             options={{
               tabBarIcon: ({ focused, color, size }) => {
-                return <Home size={size} color={color} />;
+                return <Feather name="home" size={size} color={color} />;
               },
             }}
             listeners={({ navigation, route }) => ({
@@ -260,7 +268,7 @@ export default function App() {
             component={MarketScreensStack}
             options={{
               tabBarIcon: ({ focused, color, size }) => {
-                return <GalleryHorizontalEnd size={size} color={color} />;
+                return <AntDesign name="appstore-o" size={size} color={color} />
               },
             }}
             listeners={({ navigation, route }) => ({
@@ -292,7 +300,7 @@ export default function App() {
                     elevation: 3,
                     marginBottom: 20
                   }}>
-                    <Layers size={25} color={focused ? 'white' : color} />
+                    <Feather name="layers" size={size} color={focused ? 'white' : color} />
                   </View>
                 )
               },
@@ -312,7 +320,7 @@ export default function App() {
             component={PortfolioScreensStack}
             options={{
               tabBarIcon: ({ focused, color, size }) => {
-                return <Package size={size} color={color} />;
+                return <Ionicons name="file-tray-outline" size={size} color={color} />
               },
             }}
             listeners={({ navigation, route }) => ({
@@ -330,7 +338,7 @@ export default function App() {
             component={ProfileScreen}
             options={{
               tabBarIcon: ({ focused, color, size }) => {
-                return <User size={size} color={color} />;
+                return <Feather name="user" size={size} color={color} />
               },
             }}
             listeners={({ navigation, route }) => ({
@@ -365,42 +373,44 @@ export default function App() {
   )
 
   if (!loggedIn) return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: styles.tabBar
-        }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar hidden={false} translucent={true} backgroundColor="transparent" barStyle="dark-content" />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            tabBarStyle: styles.tabBar
+          }}>
 
-        <Stack.Screen
-          name="SIgnInOption"
-          component={SIgnInOption}
-        />
+          <Stack.Screen
+            name="SIgnInOption"
+            component={SIgnInOption}
+          />
 
-        <Stack.Screen
-          name="Login"
-          component={Login}
-        />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+          />
 
-        <Stack.Screen
-          name="CreateAnAccount"
-          component={CreateAnAccount}
-        />
+          <Stack.Screen
+            name="CreateAnAccount"
+            component={CreateAnAccount}
+          />
 
-        <Stack.Screen
-          name="VerificationCode"
-          component={VerificationCode}
-        />
+          <Stack.Screen
+            name="VerificationCode"
+            component={VerificationCode}
+          />
 
-        <Stack.Screen
-          name="ForgotPassword"
-          component={ForgotPassword}
-        />
+          <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPassword}
+          />
 
-      </Stack.Navigator>
-    </NavigationContainer>
-
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   )
 
 }

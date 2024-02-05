@@ -1,23 +1,16 @@
-import React, { useState, useEffect, useImperativeHandle, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, ActivityIndicator, Text, Image, View, ScrollView } from 'react-native';
-import { Bell, ChevronUp, ChevronDown, Minus, Coins } from 'lucide-react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { FontAwesome5, Entypo } from '@expo/vector-icons';
 import { auth, db } from '../../database'
 import NotificationsList from "../helpers/NotificationList";
 import LottieView from "lottie-react-native";
 import {
-  collection,
   doc,
-  setDoc,
   updateDoc,
-  deleteDoc,
-  getDocs,
   onSnapshot,
-  getDoc,
 } from "firebase/firestore";
 import Animated, {
   interpolate,
-  useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
@@ -102,7 +95,10 @@ export default Landing = () => {
       }
     });
 
-    // Set up the countdown timer interval
+  }, []);
+
+  
+  useEffect(() => {
     const timer = setInterval(() => {
 
       const now = moment();
@@ -123,6 +119,19 @@ export default Landing = () => {
           "portfolio.reward": moment().add(1, 'days').toISOString()
         })
       }
+      
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+
+    };
+  }, [nextRewardDate])
+
+  useEffect(() => {
+
+    // Set up the countdown timer interval
+    const timer = setInterval(() => {
 
       setTime((prevTime) => {
         const [minutes, seconds] = prevTime.split(':').map(Number);
@@ -183,10 +192,9 @@ export default Landing = () => {
 
     return () => {
       clearInterval(timer);
-      unsubscribe();
-    };
-  }, [assets, nextRewardDate]);
 
+    };
+  }, [assets])
 
   if (loading) {
     return (
@@ -226,8 +234,7 @@ export default Landing = () => {
             }}>{fullName}</Text>
           </View>
         </View>
-
-        <Bell size={30} color={"black"} />
+        <FontAwesome5 name="bell" size={30} color={"black"} />
 
       </View>
 
@@ -260,7 +267,7 @@ export default Landing = () => {
               marginTop: 5,
               alignItems: 'center'
             }}>
-              <Coins color="lightgreen" size={13} />
+              <FontAwesome5 name="coins" color="lightgreen" size={13} />
               <Text style={{
                 color: 'white',
                 fontSize: 10,
@@ -351,7 +358,7 @@ export default Landing = () => {
                       </View>
                     </View>
 
-                    {(item.amount * item.price) === (item.amount * item.close) ? <Minus color='blue' size={30} /> : (item.amount * item.price) < (item.amount * item.close) ? <ChevronUp color='#0DA070' size={30} /> : <ChevronDown color='#E01B2A' size={30} />}
+                    {(item.amount * item.price) === (item.amount * item.close) ? <Entypo name="minus" color='blue' size={30} /> : (item.amount * item.price) < (item.amount * item.close) ? <Entypo name="chevron-up" color='#0DA070' size={30} /> : <Entypo name="chevron-down" color='#E01B2A' size={30} />}
                   </View>
                   <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'flex-start' }}>
                     <Text style={{
@@ -360,7 +367,7 @@ export default Landing = () => {
                       color: 'black'
                     }}>
                       ${(item.close * Number(item.amount)).toString().split('.')[0]}
-                      <Text style={{ fontSize: 20, color: '#757575' }}>.{(item.close * Number(item.amount)).toString().split('.')[1] ? (item.close * Number(item.amount)).toString().split('.')[1] : "00"}</Text>
+                      <Text style={{ fontSize: 20, color: '#757575' }}>.{(item.close * Number(item.amount)).toFixed(2).toString().split('.')[1] ? (item.close * Number(item.amount)).toFixed(2).toString().split('.')[1] : "00"}</Text>
                     </Text>
 
                     <View style={{

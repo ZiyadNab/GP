@@ -1,32 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { StyleSheet, TouchableOpacity, ActivityIndicator, Modal, Text, Image, View, Switch, TextInput, ImageBackground } from 'react-native';
-import { LogOutIcon, CalendarDays, UsersRound, CircleDollarSign, CalendarCheck, UserRound, Crown, ChevronDown, ChevronUp, CircleSlash } from 'lucide-react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { auth, db, storage } from '../../database'
+import React, { useEffect, useRef, useState } from 'react'
+import { StyleSheet, TouchableOpacity, ActivityIndicator, Text, Image, View } from 'react-native';
+import { Fontisto, Entypo, Feather, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { auth, db } from '../../database'
 import { useRoute, CommonActions } from '@react-navigation/native';
 import BottomSheet from '../helpers/BottomSheet'
-import moment from 'moment';
 import { GestureHandlerRootView, FlatList, ScrollView } from 'react-native-gesture-handler'
-import Toast from 'react-native-toast-message'
-import * as ImagePicker from 'expo-image-picker';
 import {
-    collection,
     doc,
     onSnapshot,
     updateDoc,
     deleteDoc,
-    getDocs,
     getDoc,
-    setDoc,
-    arrayUnion,
     arrayRemove,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function SessionDetails({ navigation }) {
 
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item, index }) => (
         <View style={styles.item}>
 
             <View style={{
@@ -58,7 +49,10 @@ export default function SessionDetails({ navigation }) {
                     </View>
                 </View>
 
-                <ChevronDown size={30} color={"red"} />
+                <Text style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                }}>#{index + 1}</Text>
 
             </View>
         </View>
@@ -150,19 +144,19 @@ export default function SessionDetails({ navigation }) {
         );
     };
 
-    async function leaveSession(){
+    async function leaveSession() {
 
         const docRef = doc(db, 'users', auth.currentUser.uid);
         const dataRef = await getDoc(docRef);
-        if(dataRef.exists()){
+        if (dataRef.exists()) {
             await updateDoc(docRef, {
                 "portfolio.sessions": arrayRemove(receivedData)
             })
 
             const doccRef = doc(db, 'sessions', receivedData)
             const sessionRef = await getDoc(doccRef);
-            if(sessionRef.exists()){
-                if(sessionRef.data().players.length > 1){
+            if (sessionRef.exists()) {
+                if (sessionRef.data().players.length > 1) {
                     const indexToRemove = sessionRef.data().players.findIndex(player => player.userId === auth.currentUser.uid);
                     await updateDoc(doccRef, {
                         "players": arrayRemove(sessionRef.data().players[indexToRemove])
@@ -179,9 +173,7 @@ export default function SessionDetails({ navigation }) {
         'August', 'September', 'October', 'November', 'December'
     ];
 
-    const daysOfWeek = [
-        'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-    ];
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     function format(a) {
         const date = new Date(a);
@@ -228,7 +220,7 @@ export default function SessionDetails({ navigation }) {
                 </View>
 
                 <TouchableOpacity onPress={() => leaveSession()}>
-                    <LogOutIcon size={30} color={"red"} />
+                    <MaterialIcons name="logout" size={30} color={"red"} />
                 </TouchableOpacity>
 
             </View>
@@ -278,36 +270,34 @@ export default function SessionDetails({ navigation }) {
 
                 <View>
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <CalendarDays size={20} color='green'
-                        />
+                        <FontAwesome name="calendar-check-o" size={20} color='green' />
                         <Text style={{ marginLeft: 4 }}>{`${format(startDate)}`}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <CalendarCheck size={20} color='red'
-                        />
+                        <FontAwesome name="calendar-times-o" size={20} color='red' />
                         <Text style={{ marginLeft: 4 }}>{`${format(endDate)}`}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <UserRound size={20} color='black' />
+                        <Feather name="user" size={20} color='black' />
                         <Text style={{ marginLeft: 4, maxWidth: 150 }}>{`${owner}`}</Text>
                     </View>
                 </View>
 
                 <View>
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <UsersRound size={20} color='black' />
+                        <Feather name="users" size={20} color='black' />
                         <Text style={{ marginLeft: 4 }}>{`${playersCount} player`}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <CircleDollarSign size={20} color='black' />
+                        <Fontisto name="dollar" size={20} color='black' />
                         <Text style={{ marginLeft: 4 }}>{`${sessionBalance}`}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', margin: 2 }}>
-                        <CircleSlash size={20} color='black' />
+                        <Entypo name="newsletter" size={20} color='black' />
                         <Text style={{ marginLeft: 4 }}>{`${receivedData}`}</Text>
                     </View>
                 </View>
@@ -321,125 +311,8 @@ export default function SessionDetails({ navigation }) {
             </TouchableOpacity>
 
             <BottomSheet ref={bottomSheetRef}>
-                <View style={{ marginHorizontal: 10, height: 120, backgroundColor: 'lightgray', borderRadius: 10, marginTop: 200, elevation: 5, shadowOffset: { width: 0, height: 5 / 2 }, shadowOpacity: 0.3, shadowRadius: 5 / 2 }}>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
-
-                        {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance).length > 1 ? (
-                            <View style={{ alignItems: 'center', bottom: '18%' }}>
-                                <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'blue', bottom: '20%', right: '12%' }}>
-                                    <Image
-                                        source={{ uri: leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[1].icon }}
-                                        style={{ width: 79, height: 79, borderRadius: 50 }}
-                                    />
-                                </View>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    2ND
-                                </Text>
-                                <Text style={styles.playerText}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[1].PlayerName}
-                                </Text>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[1].PlayerTotalBalance}
-                                </Text>
-                                
-                            </View>
-                        ) : (
-                            <View style={{ alignItems: 'center', bottom: '18%' }}>
-                                <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'blue', bottom: '20%', right: '12%' }}>
-                                    <Image
-                                        source={require('../../assets/user.png')}
-                                        style={{ width: 79, height: 79, borderRadius: 50 }}
-                                    />
-                                </View>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    2ND
-                                </Text>
-                                <Text style={styles.playerText}>
-                                    Ziyad Nabil
-                                </Text>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    No data
-                                </Text>
-                                
-                            </View>
-                        )}
-
-                        {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance).length > 2 ? (
-                            <View style={{ alignItems: 'center', bottom: '18%' }}>
-                                <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: '#cd7f32', bottom: '20%', left: '12%' }}>
-                                    <Image
-                                        source={{ uri: leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[2].icon }}
-                                        style={{ width: 79, height: 79, borderRadius: 50 }}
-                                    />
-                                </View>
-                                <Text style={styles.playerText}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[2].PlayerName}
-                                </Text>
-                                <Text style={{ color: '#cd7f32', fontSize: 20, fontWeight: 'bold' }}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[2].PlayerTotalBalance}
-                                </Text>
-                                <Text style={{ color: '#cd7f32', fontSize: 20, fontWeight: 'bold' }}>
-                                    3rd
-                                </Text>
-                            </View>
-                        ) : (
-                            <View style={{ alignItems: 'center', bottom: '18%' }}>
-                                <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'blue', bottom: '20%', right: '12%' }}>
-                                    <Image
-                                        source={require('../../assets/user.png')}
-                                        style={{ width: 79, height: 79, borderRadius: 50 }}
-                                    />
-                                </View>
-                                <Text style={styles.playerText}>
-                                    TBD
-                                </Text>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    No data
-                                </Text>
-                                <Text style={{ color: 'blue', fontSize: 20, fontWeight: 'bold' }}>
-                                    3nd
-                                </Text>
-                            </View>
-                        )}
-
-                    </View>
-
-                    <View style={{ width: '40%', height: '160%', backgroundColor: 'lightgray', borderRadius: 10, bottom: '220%', left: '30%', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ bottom: '30%' }}>
-                            <Crown
-                                size={70}
-                                color='gold'
-                            />
-                        </View>
-                        {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance).length > 0 ? (
-                            <View style={{ width: 90, height: 90, borderRadius: 50, bottom: '32%' }}>
-                                <Image
-                                    source={{ uri: leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[0].icon }}
-                                    style={{ width: 89, height: 89, borderRadius: 50 }}
-                                />
-                            </View>
-                        ) : null}
-                        {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance).length > 0 ? (
-                            <View style={{ alignItems: 'center', bottom: '30%' }}>
-                                <Text style={{ color: 'gold', fontSize: 40, fontWeight: 'bold', marginTop: 5 }}>
-                                    1ST
-                                </Text>
-                                <Text style={styles.playerText}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[0].PlayerName}
-                                </Text>
-                                <Text style={{ color: 'gold', fontSize: 20, fontWeight: 'bold' }}>
-                                    {leaderBoard.sort((a, b) => b.PlayerTotalBalance - a.PlayerTotalBalance)[0].PlayerTotalBalance} Proft
-                                </Text>
-                                
-                            </View>
-                        ) : null}
-                    </View>
-
-                </View>
-
-
-                <View style={{ width: '100%', backgroundColor: 'lightgray', marginTop: 20, borderTopRightRadius: 30, borderTopLeftRadius: 30, marginBottom: '80%', height: 355 }}>
+                <View style={{ width: '100%', backgroundColor: 'lightgray', borderTopRightRadius: 30, borderTopLeftRadius: 30, marginBottom: '80%', height: 355 }}>
                     <FlatList
                         data={leaderBoard}
                         renderItem={renderItem}

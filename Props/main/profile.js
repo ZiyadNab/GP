@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, ActivityIndicator, Text, Image, View, FlatList, RefreshControl, ScrollView, TextInput, ImageBackground } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { PenLine, LogOut } from 'lucide-react-native';
+import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { auth, db, storage } from '../../database'
 import { signOut } from 'firebase/auth'
 import Toast from 'react-native-toast-message'
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import * as ImagePicker from 'expo-image-picker';
+
 import {
-  collection,
   doc,
-  setDoc,
   updateDoc,
-  deleteDoc,
-  getDocs,
   getDoc,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -83,15 +80,6 @@ export default function Profile() {
     getData()
   }, [])
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        // Alert.alert('Permission denied', 'Sorry, we need camera roll permissions to make this work!');
-      }
-    })();
-  }, []);
-
   function generateRandomFileName() {
     const timestamp = new Date().getTime(); // Get current timestamp
     const randomString = Math.random().toString(36).substring(2, 8); // Generate random string
@@ -113,6 +101,20 @@ export default function Profile() {
 
 
   const pickImage = async () => {
+
+    if ((await ImagePicker.getMediaLibraryPermissionsAsync()).granted) {
+      const per = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (per.status !== 'granted') {
+        return Toast.show({
+          type: 'error',
+          text1: 'Permissions Required',
+          text2: "Permissions must be granted in order to edit your account profile image.",
+          visibilityTime: 5000,
+          autoHide: true
+        })
+      }
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -159,7 +161,8 @@ export default function Profile() {
         borderWidth: 4,
         padding: 3
       }}>
-        <PenLine
+        <Feather
+          name="edit-3"
           color="black"
           size={30}
         />
@@ -254,24 +257,21 @@ export default function Profile() {
           <Text style={{ fontSize: 16, paddingVertical: 10 }} > Date of birth </Text>
           <Text style={{ fontSize: 16, paddingVertical: 10, }}> {updatedDOB ? updatedDOB : text} </Text>
 
-          {showDatePicker && (
-            <DateTimePicker
-              testID="DateTimePicker"
-              placeholderText={text}
-              value={date}
-              mode="date" // Set the mode to 'date'
-              display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
-              onChange={(event, selecetedDate) => {
-                const currentDate = selecetedDate || date;
-                setdate(currentDate);
-                setshow(!showDatePicker)
-
-                let tempdate = new Date(currentDate);
-                let fDate = tempdate.getDate() + '/' + (tempdate.getMonth() + 1) + '/' + tempdate.getFullYear();
-                setUpdatedDOB(fDate)
-              }}
-            />
-          )}
+          <DateTimePickerModal
+            isVisible={showDatePicker}
+            mode="date"
+            onConfirm={(date) => {
+              setdate(date);
+              setshow(false);
+              let tempdate = new Date(date);
+              let fDate = tempdate.getDate() + '/' + (tempdate.getMonth() + 1) + '/' + tempdate.getFullYear();
+              setText(fDate);
+              DOBInputAnimatedBorder.value = Boolean(date) ? withTiming('#1573FE') : withTiming('#D9D9D9')
+            }}
+            onCancel={() => {
+              setshow(false)
+            }}
+          />
         </TouchableOpacity>
 
         <View style={styles.ProfileView}>
@@ -357,7 +357,7 @@ export default function Profile() {
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white' }}>Update</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => signOut(auth)} style={{ height: 50, width: 50, padding: 7, backgroundColor: 'red', borderRadius: 7, alignItems: 'center', justifyContent: 'center', marginTop: 7, marginLeft: 5 }}>
-            <LogOut size={20} color="white" />
+            <MaterialIcons name="logout" size={20} color="white" />
           </TouchableOpacity>
         </View>
 

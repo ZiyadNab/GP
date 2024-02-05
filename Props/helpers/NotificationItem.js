@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
+import { FontAwesome5, Entypo } from '@expo/vector-icons';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -14,7 +15,6 @@ import Animated, {
   withTiming,
   Extrapolate
 } from "react-native-reanimated";
-import { Bell, ChevronUp, ChevronDown } from 'lucide-react-native';
 import { useState } from "react";
 import { useNavigation } from '@react-navigation/native';
 
@@ -104,7 +104,7 @@ const NotificationItem = ({
         <View>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{data.close ? data.region + data.close : data.price}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            { data.change_p ? data.change_p > 0 ? <ChevronUp color='#0DA070' size={20} /> : <ChevronDown color='#E01B2A' size={20} /> : data.rising ? <ChevronUp color='#0DA070' size={20} /> : <ChevronDown color='#E01B2A' size={20} />}
+            { data.change_p ? data.change_p > 0 ? <Entypo name="chevron-up" color='#0DA070' size={30} /> : <Entypo name="chevron-down" color='#E01B2A' size={30} /> : data.rising ? <Entypo name="chevron-up" color='#0DA070' size={30} /> : <Entypo name="chevron-down" color='#E01B2A' size={30} />}
             <Text style={{ fontSize: 15, fontWeight: 'bold', color: data.change_p ? data.change_p > 0 ? '#0DA070' : '#E01B2A' : data.rising ? '#0DA070' : '#E01B2A' }}>{data.change_p ? data.change_p.toFixed(2) : data.percantage}%</Text>
           </View>
         </View>

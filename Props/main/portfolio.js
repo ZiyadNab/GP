@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Image } from 'react-native';
 import React, { useEffect, useState } from 'react'
 import { useRoute } from '@react-navigation/native';
-import { Settings, CalendarClock, ChevronUp, ChevronDown, Minus } from 'lucide-react-native';
+import { Feather, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import LottieView from "lottie-react-native";
 import NotificationsList from "../helpers/NotificationList";
 import { auth, db } from '../../database'
@@ -12,7 +12,6 @@ import {
 } from "firebase/firestore";
 import Animated, {
     interpolate,
-    useAnimatedStyle,
     useDerivedValue,
     useSharedValue,
 } from "react-native-reanimated";
@@ -215,7 +214,7 @@ export default function Portfolio({ navigation }) {
                         fontWeight: 'bold'
                     }}>Portfolio</Text>
 
-                    <Settings style={{ top: 5 }} color='black' size={25} />
+                    <Feather name="settings" style={{ top: 5 }} color='black' size={25} />
                 </View>
 
                 <View style={{
@@ -261,18 +260,6 @@ export default function Portfolio({ navigation }) {
                             </View> */}
                         </View>
                     </View>
-
-                    <TouchableOpacity onPress={() => { navigation.navigate("HistoryScreen") }} style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 25,
-                        backgroundColor: 'white',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        top: 10
-                    }}>
-                        <CalendarClock color='black' size={25} />
-                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -340,7 +327,7 @@ export default function Portfolio({ navigation }) {
                                             </View>
                                         </View>
 
-                                        {(item.amount * item.price) === (item.amount * item.close) ? <Minus color='blue' size={30} /> : (item.amount * item.price) < (item.amount * item.close) ? <ChevronUp color='#0DA070' size={30} /> : <ChevronDown color='#E01B2A' size={30} />}
+                                        {(item.amount * item.price) === (item.amount * item.close) ? <Entypo name="minus" color='blue' size={30} /> : (item.amount * item.price) < (item.amount * item.close) ? <Entypo name="chevron-up" color='#0DA070' size={30} /> : <Entypo name="chevron-down" color='#E01B2A' size={30} />}
                                     </View>
                                     <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'flex-start' }}>
                                         <Text style={{

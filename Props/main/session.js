@@ -1,20 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity, ActivityIndicator, Modal, Text, Image, View, FlatList, Switch, ScrollView, TextInput, ImageBackground } from 'react-native';
-import { CalendarDays, CalendarCheck, CircleDollarSign, Plus, X, PenLine } from 'lucide-react-native';
+import { StyleSheet, TouchableOpacity, ActivityIndicator, Modal, Text, Image, View, FlatList, TextInput } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Entypo, Feather, FontAwesome } from '@expo/vector-icons';
 import { auth, db, storage } from '../../database'
 import moment from 'moment';
 import LottieView from "lottie-react-native";
 import Toast from 'react-native-toast-message'
 import * as ImagePicker from 'expo-image-picker';
 import {
-    collection,
     doc,
     onSnapshot,
     updateDoc,
-    deleteDoc,
-    getDocs,
     getDoc,
     setDoc,
     arrayUnion,
@@ -35,9 +31,7 @@ export default function App({ navigation }) {
         'August', 'September', 'October', 'November', 'December'
     ];
 
-    const daysOfWeek = [
-        'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-    ];
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const [activeData, setActiveData] = useState([]);
     const [expiredData, setExpiredData] = useState([]);
@@ -101,14 +95,14 @@ export default function App({ navigation }) {
 
     function format(a) {
         const date = new Date(a);
-
-        const dayOfWeek = daysOfWeek[date.getDay()];
+    
+        const dayOfWeekAbbreviated = daysOfWeek[date.getDay()];
         const month = months[date.getMonth()];
         const dayOfMonth = date.getDate();
         const year = date.getFullYear();
-
-        return `${dayOfWeek}, ${month} ${dayOfMonth}, ${year}`
-    };
+    
+        return `${dayOfWeekAbbreviated}, ${month} ${dayOfMonth}, ${year}`;
+    }
 
     const renderItem = ({ item }) => {
 
@@ -144,22 +138,20 @@ export default function App({ navigation }) {
 
 
                                 }}>
-                                    <View style={{ flexDirection: 'row', marginRight: 5, backgroundColor: '#515151', justifyContent: 'flex-start', padding: 5, borderRadius: 2, marginBottom: 5, alignItems: 'center' }}>
-                                        <CalendarDays size={15} color='white'
-                                        />
+                                    <View style={{ flexDirection: 'row', marginRight: 5, backgroundColor: '#515151', justifyContent: 'flex-start', padding: 5, borderRadius: 2, marginBottom: 5, alignItems: 'center', width: 210 }}>
+                                        <FontAwesome name="calendar-check-o" size={13} color='white' />
 
                                         <Text style={{ marginLeft: 4, textAlign: 'center', color: 'white' }}>{`${format(item.startDate)}`}</Text>
                                     </View>
 
                                     <View style={{ flexDirection: 'row', marginRight: 5, backgroundColor: '#515151', justifyContent: 'flex-start', padding: 5, borderRadius: 2, marginBottom: 5, alignItems: 'center' }}>
-                                        <CalendarCheck size={15} color='white'
-                                        />
+                                        <FontAwesome name="calendar-times-o" size={13} color='white' />
                                         <Text style={{ marginLeft: 4, textAlign: 'center', color: 'white' }}>{`${format(item.endDate)}`}</Text>
                                     </View>
                                 </View>
 
                                 <View style={{ flexDirection: 'row', marginRight: 5, backgroundColor: '#515151', justifyContent: 'flex-start', padding: 5, borderRadius: 2, alignItems: 'center' }}>
-                                    <CircleDollarSign size={15} color='white' />
+                                    <FontAwesome name="dollar" size={15} color='white' />
                                     <Text style={{ marginLeft: 4, textAlign: 'center', color: 'white' }}>{`${item.startBalance}`}</Text>
                                 </View>
                             </View>
@@ -369,8 +361,8 @@ export default function App({ navigation }) {
                             style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}
                         >
                             <View style={{ backgroundColor: 'red', borderRadius: 12, padding: 2 }}>
-                                <X color='white' size={25} />
-                            </View> 
+                                <Feather name="x" color='white' size={25} />
+                            </View>
                         </TouchableOpacity>
 
                         {
@@ -397,7 +389,8 @@ export default function App({ navigation }) {
                                             borderWidth: 4,
                                             padding: 3
                                         }}>
-                                            <PenLine
+                                            <Feather
+                                                name="edit-3"
                                                 color="black"
                                                 size={30}
                                             />
@@ -582,7 +575,7 @@ export default function App({ navigation }) {
                         setSessionID(null)
                     }}
                 >
-                    <Plus size={40} color='#1573FE' />
+                    <Entypo name="plus" size={40} color='#1573FE' />
                 </TouchableOpacity>
             </View>
 

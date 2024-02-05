@@ -4,12 +4,7 @@ import { auth, db } from '../../database'
 import Toast from 'react-native-toast-message'
 import { useRoute } from '@react-navigation/native';
 import {
-    collection,
     doc,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    getDocs,
     getDoc,
 } from "firebase/firestore";
 
@@ -21,9 +16,9 @@ export default function Trade({ navigation }) {
     const [amount, setAmount] = useState(0)
     const [userBalance, setUserBalance] = useState(0)
 
-    function validationsBuy(){
+    function validationsBuy() {
 
-        if(amount <= 0) return Toast.show({
+        if (amount <= 0) return Toast.show({
             type: 'info',
             text1: 'You left something',
             text2: "Please enter the amount first.",
@@ -31,7 +26,7 @@ export default function Trade({ navigation }) {
             autoHide: true
         })
 
-        if((receivedData.asset.numPrice * amount) > userBalance){
+        if ((receivedData.asset.numPrice * Number(amount)) > userBalance) {
 
             Toast.show({
                 type: 'error',
@@ -40,12 +35,12 @@ export default function Trade({ navigation }) {
                 visibilityTime: 5000,
                 autoHide: true
             })
-        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'buy' }})
+        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'buy' } })
     }
 
-    function validationsSell(){
+    function validationsSell() {
 
-        if(amount <= 0) return Toast.show({
+        if (Number(amount) <= 0) return Toast.show({
             type: 'info',
             text1: 'You left something',
             text2: "Please enter the amount first.",
@@ -53,7 +48,7 @@ export default function Trade({ navigation }) {
             autoHide: true
         })
 
-        if(owned.amount < amount){
+        if (Number(owned.amount) < Number(amount)) {
 
             Toast.show({
                 type: 'error',
@@ -62,7 +57,7 @@ export default function Trade({ navigation }) {
                 visibilityTime: 5000,
                 autoHide: true
             })
-        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'sell' }})
+        } else navigation.navigate("Pin", { data: { amount: amount, asset: receivedData.asset, wallet: receivedData.wallet, type: 'sell' } })
     }
 
     useEffect(() => {
@@ -83,7 +78,7 @@ export default function Trade({ navigation }) {
                 if (docData.exists()) {
 
                     docData.data().players.forEach((e) => {
-                        if(e.userId === auth.currentUser.uid){
+                        if (e.userId === auth.currentUser.uid) {
                             setUserBalance(e.portfolio.balance)
                             setOwned(e.portfolio.assets.find(item => item.title === receivedData.asset.title))
                             setLoading(false)
@@ -136,17 +131,17 @@ export default function Trade({ navigation }) {
                     width: '50%',
                 }}>
                     <TextInput
-  keyboardType="decimal-pad"
-  style={{
-    padding: 12,
-    fontWeight: 'bold',
-    fontSize: 40,
-    textAlign: 'center',
-  }}
-  onChangeText={(v) => setAmount(v)}
-  placeholder='Amount'
-  returnKeyType='done'  // Specify the return key type
-/>
+                        keyboardType="decimal-pad"
+                        style={{
+                            padding: 12,
+                            fontWeight: 'bold',
+                            fontSize: 40,
+                            textAlign: 'center',
+                        }}
+                        onChangeText={(v) => setAmount(v)}
+                        placeholder='Amount'
+                        returnKeyType='done'  // Specify the return key type
+                    />
 
 
                     <View style={{
@@ -157,19 +152,19 @@ export default function Trade({ navigation }) {
                 </View>
             </View>
 
-            { owned ? (
+            {owned ? (
                 <TouchableOpacity onPress={() => validationsSell()}>
-                <View style={{
-                    backgroundColor: 'red',
-                    padding: 15,
-                    borderRadius: 10,
-                    marginHorizontal: 20,
-                    marginTop: 5,
-                    marginBottom: 5
-                }}>
-                    <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Sell"}</Text>
-                </View>
-            </TouchableOpacity>
+                    <View style={{
+                        backgroundColor: 'red',
+                        padding: 15,
+                        borderRadius: 10,
+                        marginHorizontal: 20,
+                        marginTop: 5,
+                        marginBottom: 5
+                    }}>
+                        <Text style={{ color: 'white', fontSize: 17, textAlign: 'center' }}>{"Sell"}</Text>
+                    </View>
+                </TouchableOpacity>
             ) : null}
             <TouchableOpacity onPress={() => validationsBuy()}>
                 <View style={{
